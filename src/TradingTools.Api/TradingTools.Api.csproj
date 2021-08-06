@@ -11,4 +11,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TradingTools.Math\TradingTools.MathLib.csproj" />
+  </ItemGroup>
+
 </Project>
