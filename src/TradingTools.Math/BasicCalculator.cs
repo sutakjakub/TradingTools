@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using TradingTools.MathLib.Models;
 
 namespace TradingTools.MathLib
 {
@@ -108,8 +111,106 @@ namespace TradingTools.MathLib
                 throw new ArgumentException($"Decimal places is {decimalPlaces} that is less then negative one.", nameof(decimalPlaces));
             }
 
-            var result = Math.Abs(PositionSizeByRisk(equity *5 , riskPerc, -1) / StopLossPercentage(entryPrice, stopLossPrice, -1));
+            var result = Math.Abs(PositionSizeByRisk(equity, riskPerc, -1) / StopLossPercentage(entryPrice, stopLossPrice, -1));
             return SolveRound(result, decimalPlaces);
         }
+
+        /// <summary>
+        /// Returns an evenly split array of prices.
+        /// When <paramref name="decimalPlaces"/> is equal negative one then rounding will not occur.
+        /// </summary>
+        /// <param name="startPrice">Start price.</param>
+        /// <param name="endPrice">End price.</param>
+        /// <param name="divisors">Count of divisors.</param>
+        /// <param name="decimalPlaces">How many decimal points should the result have.</param>
+        /// <returns></returns>
+        public static decimal[] Split(decimal startPrice, decimal endPrice, int divisors, int decimalPlaces = 2)
+        {
+            if (startPrice <= 0)
+            {
+                throw new ArgumentException($"Input is {startPrice} that is less or equal zero.", nameof(startPrice));
+            }
+            if (endPrice <= 0)
+            {
+                throw new ArgumentException($"Input is {endPrice} that is less or equal zero.", nameof(endPrice));
+            }
+            if (divisors <= 0)
+            {
+                throw new ArgumentException($"Input is {divisors} that is less or equal zero.", nameof(divisors));
+            }
+            if (decimalPlaces < -1)
+            {
+                throw new ArgumentException($"Decimal places is {decimalPlaces} that is less then negative one.", nameof(decimalPlaces));
+            }
+
+            //greater value
+            var greater = Math.Max(startPrice, endPrice);
+            //lower value
+            var lower = Math.Min(startPrice, endPrice);
+
+            var diff = (greater - lower) / (divisors - 1); //  10dilku/4usekama
+            var parts = new decimal[divisors];
+            parts[0] = lower;
+            parts[divisors - 1] = greater;
+            for (int i = 1; i <= divisors - 2; i++)
+            {
+                parts[i] = SolveRound(parts[i - 1] + diff, decimalPlaces);
+            }
+
+            return parts;
+        }
+
+        /// <summary>
+        /// Returns array of splitted amount by ratios.
+        /// </summary>
+        /// <param name="amount">Amount.</param>
+        /// <param name="ratios">Ratios.</param>
+        /// <returns></returns>
+        public static decimal[] DistributeAmount(decimal amount, decimal[] ratios)
+        {
+            decimal total = 0;
+            decimal[] results = new decimal[ratios.Length];
+
+            // find the total of the ratios
+            for (int index = 0; index < ratios.Length; index++)
+            {
+                total += ratios[index];
+            }
+
+            // convert amount to a fixed point value (no mantissa portion)
+            amount *= 100;
+            decimal remainder = amount;
+            for (int index = 0; index < results.Length; index++)
+            {
+                results[index] = Math.Floor(amount * ratios[index] / total);
+                remainder -= results[index];
+            }
+
+            // allocate remainder across all amounts
+            for (int index = 0; index < remainder; index++)
+            {
+                results[index]++;
+            }
+
+            // convert back to decimal portion
+            for (int index = 0; index < results.Length; index++)
+            {
+                results[index] = results[index] / 100;
+            }
+
+            return results;
+        }
+
+
+        //public static decimal CostBasis(IEnumerable<CostBasisModel> source, int decimalPlaces = 2)
+        //{
+        //    var result = (source.Sum(s => s.PurchasePrice) + source.Sum(s => s.Fee)) / source.Sum(s => s.Quantity);
+        //    return SolveRound(result, decimalPlaces);
+        //}
+
+        //public static decimal AverageCostPerShare(decimal totalPurchase, int decimalPlaces = 2)
+        //{
+
+        //}
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace TradingTools.MathLib.Tests
 {
@@ -69,7 +70,42 @@ namespace TradingTools.MathLib.Tests
             //act
             var price = BasicCalculator.PositionSize(entryPrice, stopLossPrice, riskPerc, equity, decimalPlaces);
             //assert
-            Assert.Equal(price, expectedResult);
+            Assert.Equal(expectedResult, price);
+        }
+
+        [Fact]
+        public void SplitTest_ShouldEquals()
+        {
+            //arrange
+            var startPrice = 5M;
+            var endPrice = 15M;
+            var numberDivisors = 5;
+            //act
+            var result = BasicCalculator.Split(startPrice, endPrice, numberDivisors);
+            //assert
+            Assert.Equal(numberDivisors, result.Length);
+            Assert.Equal(5M, result[0]);
+            Assert.Equal(7.5M, result[1]);
+            Assert.Equal(10M, result[2]);
+            Assert.Equal(12.5M, result[3]);
+            Assert.Equal(15M, result[4]);
+        }
+
+        [Fact]
+        public void DistributeAmount_ShouldEquals()
+        {
+            //arrange
+            var amount = 100M;
+            var ratios = new decimal[] { 0.2M, 0.2M, 0.3M, 0.2M, 0.1M };
+            //act
+            var result = BasicCalculator.DistributeAmount(amount, ratios);
+            //assert
+            Assert.Equal(ratios.Length, result.Length);
+            Assert.Equal(20M, result[0]);
+            Assert.Equal(20M, result[1]);
+            Assert.Equal(30M, result[2]);
+            Assert.Equal(20M, result[3]);
+            Assert.Equal(10M, result[4]);
         }
     }
 }
