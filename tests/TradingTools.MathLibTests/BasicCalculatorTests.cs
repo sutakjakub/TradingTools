@@ -107,5 +107,92 @@ namespace TradingTools.MathLib.Tests
             Assert.Equal(20M, result[3]);
             Assert.Equal(10M, result[4]);
         }
+
+        [Fact()]
+        public void AveragePriceTest_Without_SellEntries_ShouldEqual()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)> 
+            {
+                (50M, 50M),
+                (2.86M, 35M),
+                (2.5M, 40M),
+                (1.25M, 40M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>();
+
+            //act
+            var result = BasicCalculator.AverageCost(buyEntries, sellEntries);
+
+            //assert
+            Assert.Equal(48.58M, result);
+        }
+
+        [Fact()]
+        public void AveragePriceTest_With_SellEntries_ShouldEqual()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (1M, 40000M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            { 
+                (0.5M, 40000M),
+                (0.5M, 40000M)
+            };
+
+            //act
+            var result = BasicCalculator.AverageCost(buyEntries, sellEntries);
+
+            //assert
+            Assert.Equal(0, result);
+        }
+
+        [Fact()]
+        public void AveragePriceTest_With_SellEntries2_ShouldEqual()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (1M, 10000M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (0.25M, 15000M),
+                (0.25M, 20000M)
+            };
+
+            //act
+            var result = BasicCalculator.AverageCost(buyEntries, sellEntries);
+
+            //assert
+            Assert.Equal(2500, result);
+        }
+
+        [Fact()]
+        public void AveragePriceTest_With_SellEntries3_ShouldEqual()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (10M, 1.14M),
+                (10M, 1.13M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (10M, 1.145M)
+            };
+
+            //act
+            var result = BasicCalculator.AverageCost(buyEntries, sellEntries, 3);
+
+            //assert
+            Assert.Equal(1.125M, result);
+        }
     }
 }

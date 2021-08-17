@@ -201,6 +201,52 @@ namespace TradingTools.MathLib
             return results;
         }
 
+        /// <summary>
+        /// Returns average cost of trades.
+        /// When <paramref name="decimalPlaces"/> is equal negative one then rounding will not occur.
+        /// </summary>
+        /// <param name="buyEntries">Buy entries in trade</param>
+        /// <param name="sellEntries">Sell entries in trade</param>
+        /// <param name="decimalPlaces">How many decimal points should the result have.</param>
+        /// <returns></returns>
+        public static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> buyEntries, IEnumerable<(decimal quantity, decimal price)> sellEntries, int decimalPlaces = 2)
+        {
+            var denominator = buyEntries.Sum(s => s.quantity) - sellEntries.Sum(s => s.quantity);
+            if (denominator == 0)
+            {
+                return 0;
+            }
+
+            decimal numerator = 0.0M;
+            foreach (var (quantity, price) in buyEntries)
+            {
+                numerator += quantity * price;
+            }
+
+            foreach (var (quantity, price) in sellEntries)
+            {
+                numerator -= quantity * price;
+            }
+
+            var result = numerator / denominator;
+            return SolveRound(result, decimalPlaces);
+        }
+
+        private static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> source)
+        {
+            if (!source.Any())
+            {
+                return 0;
+            }
+
+            var intermediateResult = 0.0M;
+            foreach (var (quantity, price) in source)
+            {
+                intermediateResult += quantity * price;
+            }
+
+            return intermediateResult / source.Sum(s => s.quantity);
+        }
 
         //public static decimal CostBasis(IEnumerable<CostBasisModel> source, int decimalPlaces = 2)
         //{
