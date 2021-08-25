@@ -17,10 +17,6 @@ namespace TradingTools.Db.Entities
         /// </summary>
         public T2ExchangeType ExchangeType { get; set; }
         /// <summary>
-        /// Full name of Base asset.
-        /// </summary>
-        public string FullName { get; set; }
-        /// <summary>
         /// The symbol
         /// </summary>
         public string Symbol { get; set; }

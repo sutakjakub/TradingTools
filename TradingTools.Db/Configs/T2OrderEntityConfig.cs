@@ -19,6 +19,23 @@ namespace TradingTools.Db.Configs
             builder.Property(p => p.Id)
                 .HasComment("PK, Identity")
                 .HasColumnName($"{nameof(T2OrderEntity)}_ID");
+
+            builder.Property(p => p.StopPrice)
+                 .HasPrecision(18, 8);
+            builder.Property(p => p.QuoteQuantity)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.QuoteQuantityFilled)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.QuantityFilled)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.Quantity)
+               .HasPrecision(18, 8);
+            builder.Property(p => p.Price)
+               .HasPrecision(18, 8);
+            builder.Property(p => p.QuantityRemaining)
+               .HasPrecision(18, 8);
+            builder.Property(p => p.AverageFillPrice)
+               .HasPrecision(18, 8);
         }
     }
 }

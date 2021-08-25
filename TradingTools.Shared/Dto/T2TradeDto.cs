@@ -61,5 +61,18 @@ namespace TradingTools.Shared.Dto
         /// The time the trade was made
         /// </summary>
         public DateTime TradeTime { get; set; }
+
+        /// <summary>
+        /// Whether account was the buyer in the trade
+        /// </summary>
+        public bool IsBuyer { get; set; }
+        /// <summary>
+        /// Whether account was the maker in the trade
+        /// </summary>
+        public bool IsMaker { get; set; }
+        /// <summary>
+        /// Whether trade was made with the best match
+        /// </summary>
+        public bool IsBestMatch { get; set; }
     }
 }

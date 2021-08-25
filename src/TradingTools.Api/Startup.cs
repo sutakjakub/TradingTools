@@ -1,3 +1,7 @@
+using Binance.Net;
+using Binance.Net.Interfaces;
+using Binance.Net.Objects;
+using CryptoExchange.Net.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +17,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TradingTools.Db;
+using TradingTools.ExchangeServices;
+using TradingTools.ExchangeServices.Interfaces;
 
 namespace TradingTools.Api
 {
@@ -30,6 +36,17 @@ namespace TradingTools.Api
         {
             services.AddDbContext<TradingToolsDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IBinanceClient>((serviceProvider) =>
+                {
+                    var options = new BinanceClientOptions
+                    {
+                        ApiCredentials = new ApiCredentials(Configuration["binance:key"], Configuration["binance:secret"]),
+                        AutoTimestamp = true
+                    };
+                    return new BinanceClient(options);
+                });
+            services.AddTransient<IBinanceExchangeService, BinanceExchangeService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

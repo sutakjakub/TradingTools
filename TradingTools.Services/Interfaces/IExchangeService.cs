@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using TradingTools.Shared.Dto;
 
-namespace TradingTools.Services.Interfaces
+namespace TradingTools.ExchangeServices.Interfaces
 {
     public interface IExchangeService
     {
-
+        Task<T2OrderDto> GetOrderAsync(string symbol, long orderId);
+        Task<IEnumerable<T2SymbolInfoDto>> GetAllSymbolsAsync();
+        Task<IEnumerable<T2TradeDto>> GetTradesAsync(string symbol, long? fromId = null);
     }
 }

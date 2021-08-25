@@ -88,10 +88,10 @@ namespace TradingTools.Shared.Dto
         /// <summary>
         /// Quantity which is still open to be filled
         /// </summary>
-        public decimal QuantityRemaining { get; }
+        public decimal QuantityRemaining { get; set; }
         /// <summary>
         /// The average price the order was filled
         /// </summary>
-        public decimal? AverageFillPrice { get; }
+        public decimal? AverageFillPrice { get; set; }
     }
 }

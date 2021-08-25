@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.MathLibTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Db", "TradingTools.Db\TradingTools.Db.csproj", "{6D819F68-01CF-4BEF-8BA8-31FED615C1E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTools.Services", "TradingTools.Services\TradingTools.Services.csproj", "{99689C18-F65C-4623-B777-BF2DA41541B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.ExchangeServices", "TradingTools.Services\TradingTools.ExchangeServices.csproj", "{99689C18-F65C-4623-B777-BF2DA41541B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTools.Shared", "TradingTools.Shared\TradingTools.Shared.csproj", "{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Shared", "TradingTools.Shared\TradingTools.Shared.csproj", "{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.TestConsole", "TradingTools.TestConsole\TradingTools.TestConsole.csproj", "{3BD4BC8A-1321-4346-9170-D89021311C06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BD4BC8A-1321-4346-9170-D89021311C06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BD4BC8A-1321-4346-9170-D89021311C06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BD4BC8A-1321-4346-9170-D89021311C06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BD4BC8A-1321-4346-9170-D89021311C06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

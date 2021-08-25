@@ -16,9 +16,20 @@ namespace TradingTools.Db.Configs
             //Configure base
             base.Configure(builder);
 
+            builder.HasIndex(e => e.TradeId).IsUnique();
+
             builder.Property(p => p.Id)
                 .HasComment("PK, Identity")
                 .HasColumnName($"{nameof(T2TradeEntity)}_ID");
+
+            builder.Property(p => p.Price)
+                 .HasPrecision(18, 8);
+            builder.Property(p => p.Quantity)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.QuoteQuantity)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.Commission)
+                .HasPrecision(18, 8);
         }
     }
 }

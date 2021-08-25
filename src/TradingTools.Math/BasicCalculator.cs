@@ -232,7 +232,7 @@ namespace TradingTools.MathLib
             return SolveRound(result, decimalPlaces);
         }
 
-        private static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> source)
+        public static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> source)
         {
             if (!source.Any())
             {

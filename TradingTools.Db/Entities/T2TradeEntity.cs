@@ -19,7 +19,7 @@ namespace TradingTools.Db.Entities
         /// <summary>
         /// The T2OrderId the trade belongs to
         /// </summary>
-        public long T2OrderId { get; set; }
+        public long? T2OrderId { get; set; }
         /// <summary>
         /// The T2Order entity
         /// </summary>
@@ -65,5 +65,18 @@ namespace TradingTools.Db.Entities
         /// The time the trade was made
         /// </summary>
         public DateTime TradeTime { get; set; }
+
+        /// <summary>
+        /// Whether account was the buyer in the trade
+        /// </summary>
+        public bool IsBuyer { get; set; }
+        /// <summary>
+        /// Whether account was the maker in the trade
+        /// </summary>
+        public bool IsMaker { get; set; }
+        /// <summary>
+        /// Whether trade was made with the best match
+        /// </summary>
+        public bool IsBestMatch { get; set; }
     }
 }

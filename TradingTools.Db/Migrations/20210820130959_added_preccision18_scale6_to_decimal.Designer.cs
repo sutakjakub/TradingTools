@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingTools.Db;
 
 namespace TradingTools.Db.Migrations
 {
     [DbContext(typeof(TradingToolsDbContext))]
-    partial class TradingToolsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210820130959_added_preccision18_scale6_to_decimal")]
+    partial class added_preccision18_scale6_to_decimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,8 +31,8 @@ namespace TradingTools.Db.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal?>("AverageFillPrice")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<string>("ClientOrderId")
                         .HasColumnType("nvarchar(max)");
@@ -55,28 +57,28 @@ namespace TradingTools.Db.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuantityFilled")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuantityRemaining")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuoteQuantity")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuoteQuantityFilled")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<int>("Side")
                         .HasColumnType("int");
@@ -85,8 +87,8 @@ namespace TradingTools.Db.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("StopPrice")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<string>("Symbol")
                         .HasColumnType("nvarchar(max)");
@@ -180,8 +182,8 @@ namespace TradingTools.Db.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal>("Commission")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<string>("CommissionAsset")
                         .HasColumnType("nvarchar(max)");
@@ -193,29 +195,20 @@ namespace TradingTools.Db.Migrations
                     b.Property<int>("ExchangeType")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsBestMatch")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsBuyer")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsMaker")
-                        .HasColumnType("bit");
-
                     b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
                     b.Property<decimal>("Price")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<decimal>("QuoteQuantity")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
 
                     b.Property<string>("Symbol")
                         .HasColumnType("nvarchar(max)");
