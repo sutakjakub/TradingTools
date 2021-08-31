@@ -13,5 +13,7 @@ namespace TradingTools.ExchangeServices.Interfaces
         Task<T2OrderDto> GetOrderAsync(string symbol, long orderId);
         Task<IEnumerable<T2SymbolInfoDto>> GetAllSymbolsAsync();
         Task<IEnumerable<T2TradeDto>> GetTradesAsync(string symbol, long? fromId = null);
+        Task<decimal> GetPriceAsync(string symbol);
+        Task<IEnumerable<ExchangePriceDto>> GetPricesAsync();
     }
 }

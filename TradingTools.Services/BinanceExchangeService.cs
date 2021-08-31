@@ -61,7 +61,7 @@ namespace TradingTools.ExchangeServices
             }
 
             var orderDto = new T2OrderDto
-            { 
+            {
                 AverageFillPrice = order.AverageFillPrice,
                 ClientOrderId = order.ClientOrderId,
                 CreateTime = order.CreateTime,
@@ -116,7 +116,7 @@ namespace TradingTools.ExchangeServices
                 TimeInForce.GoodTillCrossing => T2TimeInForce.GoodTillCrossing,
                 TimeInForce.GoodTillExpiredOrCanceled => T2TimeInForce.GoodTillExpiredOrCanceled,
                 TimeInForce.ImmediateOrCancel => T2TimeInForce.ImmediateOrCancel,
-                 _ => throw new InvalidOperationException($"Unknown timeInForce {timeInForce}"),
+                _ => throw new InvalidOperationException($"Unknown timeInForce {timeInForce}"),
             };
         }
 
@@ -150,11 +150,20 @@ namespace TradingTools.ExchangeServices
         public async Task<IEnumerable<T2TradeDto>> GetTradesAsync(string symbol, long? fromId = null)
         {
             var result = await _client.Spot.Order.GetUserTradesAsync(symbol, null, new DateTime(2020, 1, 1), null, null, fromId);
-            var trades = result?.Data;
+            var trades = result?.Data.ToList();
 
             if (trades == null)
             {
                 return Enumerable.Empty<T2TradeDto>();
+            }
+
+            if (fromId != null)
+            {
+                var itemToRemove = trades.SingleOrDefault(r => r.Id == fromId);
+                if (itemToRemove != null)
+                {
+                    trades.Remove(itemToRemove);
+                }
             }
 
             var list = new List<T2TradeDto>();
@@ -180,6 +189,20 @@ namespace TradingTools.ExchangeServices
             }
 
             return list;
+        }
+
+        public async Task<decimal> GetPriceAsync(string symbol)
+        {
+            var result = await _client.Spot.Market.GetPriceAsync(symbol);
+            return result.Data.Price;
+        }
+
+        public async Task<IEnumerable<ExchangePriceDto>> GetPricesAsync()
+        {
+            var result = await _client.Spot.Market.GetPricesAsync();
+            var list = result.Data.ToList();
+
+            return list.Select(s => new ExchangePriceDto { Price = s.Price, Symbol = s.Symbol, Timestamp = s.Timestamp });
         }
     }
 }

@@ -55,10 +55,10 @@ namespace TradingTools.TestConsole
             //    .Select(s => (quantity: s.QuantityFilled, price: s.AverageFillPrice.Value))
             //    .ToList();
 
-            var result1 = AverageCost(db, "AVAXBTC");
-            var result2 = AverageCost(db, "AVAXUSDT");
+            //var result1 = AverageCost(db, "AVAXBTC");
+            //var result2 = AverageCost(db, "AVAXUSDT");
 
-            return;
+            //return;
 
             if (!db.T2SymbolInfos.Any())
             {
