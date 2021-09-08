@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TradingTools.Db;
 using TradingTools.MathLib;
 using TradingTools.ExchangeServices;
+using CoinGecko.Clients;
 
 namespace TradingTools.TestConsole
 {
@@ -41,6 +42,14 @@ namespace TradingTools.TestConsole
             using var db = new TradingToolsDbContext(optionsBuilder.Options);
             using var client = new BinanceClient(binanceOptions);
             var exchange = new BinanceExchangeService(client);
+
+
+            foreach (var item in db.T2Trades.Where(w => w.T2SymbolInfoId == null).ToList())
+            {
+                item.T2SymbolInfo = db.T2SymbolInfos.Single(s => s.Symbol == item.Symbol);
+                db.T2Trades.Update(item);
+            }
+            await db.SaveChangesAsync();
 
             //var all = db.T2Orders.Where(p => p.Symbol == "AVAXUSDT").ToList();
             //var allSell = all.Where(p => p.Side == Shared.Enums.T2OrderSide.Sell).ToList();
@@ -84,6 +93,12 @@ namespace TradingTools.TestConsole
 
             //dbSymbols = dbSymbols.SkipWhile(s => s.Symbol != "BTCUSDT").ToList();
 
+            //var dbSymbols = db.T2SymbolInfos
+            //    .Where(p => (p.BaseAsset == "VIDT"))
+            //    .OrderBy(o => o.Symbol).ToList();
+
+            //dbSymbols = dbSymbols.SkipWhile(s => s.Symbol != "BTCUSDT").ToList();
+
             foreach (var symbol in dbSymbols)
             {
                 await Task.Delay(300);
@@ -104,7 +119,8 @@ namespace TradingTools.TestConsole
                     TradeTime = s.TradeTime,
                     IsBestMatch = s.IsBestMatch,
                     IsBuyer = s.IsBuyer,
-                    IsMaker = s.IsMaker
+                    IsMaker = s.IsMaker,
+                    T2SymbolInfoId = db.T2SymbolInfos.First(f => f.Symbol == s.Symbol).Id
                 }))
                 {
                     if (!db.T2Trades.Any(f => f.TradeId == item.TradeId))
@@ -114,6 +130,30 @@ namespace TradingTools.TestConsole
                 }
                 db.SaveChanges();
             }
+
+            var geckoClient = CoinGeckoClient.Instance;
+            var pricesGecko = await geckoClient.CoinsClient.GetMarketChartRangeByCoinId("bitcoin", "usd",
+                            ((DateTimeOffset)new DateTime(2020, 3, 1)).ToUnixTimeSeconds().ToString(), ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds().ToString());
+
+            var prices = pricesGecko.Prices
+                .Select(s => new { Date = UnixTimeStampToDateTime(double.Parse(s[0].ToString())), Price = decimal.Parse(s[1].ToString()) }).ToList();
+            foreach (var item in db.T2Trades.Include(p => p.T2SymbolInfo).ToList())
+            {
+                if (item.QuoteUsdValue == 0) //not initialized yet
+                {
+                    if (item.T2SymbolInfo.QuoteAsset == "BTC")
+                    {
+                        item.QuoteUsdValue = prices.Single(s => s.Date.Date == item.TradeTime.Date).Price;
+                        db.T2Trades.Update(item);
+                    }
+                    else if (item.T2SymbolInfo.QuoteAsset == "USDT")
+                    {
+                        item.QuoteUsdValue = 1.0M;
+                        db.T2Trades.Update(item);
+                    }
+                }
+            }
+            await db.SaveChangesAsync();
 
 
             if (false)
@@ -168,6 +208,14 @@ namespace TradingTools.TestConsole
                     }
                 }
             }
+        }
+
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddMilliseconds(unixTimeStamp).ToLocalTime();
+            return dateTime;
         }
 
         private static decimal AverageCost(TradingToolsDbContext db, string v)

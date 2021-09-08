@@ -68,7 +68,10 @@ namespace TradingTools.Api.Controllers
                 result.Add(trade);
             }
 
+            foreach (var item in result)
+            {
 
+            }
 
             return Ok(result);
         }
@@ -111,6 +114,9 @@ namespace TradingTools.Api.Controllers
                     return Quantity * CurrentSymbolPrice;
                 }
             }
+            public decimal DollarPrice { get; set; }
+
+            public IEnumerable<T2TradeDto> Trades { get; set; }
         }
 
         public enum TradeSummaryState

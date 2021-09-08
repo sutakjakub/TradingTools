@@ -24,6 +24,14 @@ namespace TradingTools.Db.Entities
         /// The T2Order entity
         /// </summary>
         public T2OrderEntity T2Order { get; set; }
+        /// <summary>
+        /// The T2SymbolInfo entity
+        /// </summary>
+        public T2SymbolInfoEntity T2SymbolInfo { get; set; }
+        /// <summary>
+        /// The T2SymbolInfo ID
+        /// </summary>
+        public long? T2SymbolInfoId { get; set; }
 
         /// <summary>
         /// Exchange type
@@ -53,6 +61,10 @@ namespace TradingTools.Db.Entities
         /// The quote quantity of the trade
         /// </summary>
         public decimal QuoteQuantity { get; set; }
+        /// <summary>
+        /// Dollar value of 1 quote asset at trade time
+        /// </summary>
+        public decimal QuoteUsdValue { get; set; }
         /// <summary>
         /// The commission paid for the trade
         /// </summary>
