@@ -20,6 +20,7 @@ namespace TradingTools.Db
         public DbSet<T2OrderEntity> T2Orders { get; set; }
         public DbSet<T2SymbolInfoEntity> T2SymbolInfos { get; set; }
         public DbSet<T2TradeEntity> T2Trades { get; set; }
+        public DbSet<T2TradeGroupEntity> T2TradeGroups { get; set; }
 
         public override int SaveChanges()
         {
