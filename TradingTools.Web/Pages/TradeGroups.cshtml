@@ -1,0 +1,27 @@
+﻿@page
+@model TradingTools.Web.Pages.TradeGroupsModel
+@{
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Symbol</th>
+            <th>Trades count</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var group in Model.TradeGroups)
+        {
+        <tr>
+            <td><a asp-page="/TradeGroupDetail" asp-route-id="@group.Id">@group.Name</a></td>
+            <td>@group.BaseAsset</td>
+            <td>@group.Trades.Count</td>
+            <td>@group.Description</td>
+        </tr>
+        }
+    </tbody>
+</table>

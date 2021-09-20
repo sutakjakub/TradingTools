@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingTools.Db;
 
 namespace TradingTools.Db.Migrations
 {
     [DbContext(typeof(TradingToolsDbContext))]
-    partial class TradingToolsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210920185651_tradegtoup_symbolInfoId_nullable")]
+    partial class tradegtoup_symbolInfoId_nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

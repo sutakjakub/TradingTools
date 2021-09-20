@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TradingTools.Db;
 using TradingTools.Db.Entities;
-using TradingTools.Persistence.Queries.Interface;
+using TradingTools.Persistence.Queries.Interfaces;
 
 namespace TradingTools.Persistence.Queries
 {
@@ -57,12 +57,25 @@ namespace TradingTools.Persistence.Queries
                 .ToListAsync();
         }
 
-        public IEnumerable<(string symbol, List<T2TradeEntity> trades)> GroupBySymbol()
+        public IEnumerable<(T2SymbolInfoEntity symbol, List<T2TradeEntity> trades)> GroupBySymbol()
         {
-            var pp =  _context.T2Trades.AsEnumerable().GroupBy(
-                p => p.Symbol,
+            var pp = _context.T2Trades.AsEnumerable().GroupBy(
+                p => p.T2SymbolInfo,
                 p => p,
                 (key, g) => (symbol: key, trades: g.ToList())).ToList();
+
+            return pp;
+        }
+
+        public IEnumerable<(string baseAsset, List<T2TradeEntity> trades)> GroupByBaseAsset()
+        {
+            var pp = _context.T2Trades
+                .Include(trade => trade.T2SymbolInfo)
+                .AsEnumerable()
+                .GroupBy(
+                       p => p.T2SymbolInfo.BaseAsset,
+                       p => p,
+                       (key, g) => (baseAsset: key, trades: g.ToList())).ToList();
 
             return pp;
         }

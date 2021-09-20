@@ -8,7 +8,7 @@ using TradingTools.Db.Entities;
 
 namespace TradingTools.Persistence.Stores
 {
-    public class T2TradeStore
+    public class T2TradeStore 
     {
         private readonly TradingToolsDbContext _context;
 

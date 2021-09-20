@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TradingTools.Db.Entities;
-using TradingTools.Persistence.Queries.Interface;
+using TradingTools.Persistence.Queries.Interfaces;
 
 namespace TradingTools.Web.Pages
 {

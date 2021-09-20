@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TradingTools.Persistence.Queries;
-using TradingTools.Persistence.Queries.Interface;
+using TradingTools.Persistence.Queries.Interfaces;
 
 namespace TradingTools.Persistence
 {
@@ -14,6 +14,7 @@ namespace TradingTools.Persistence
         public static void RegisterEverything(IServiceCollection services)
         {
             services.AddTransient<IT2TradeQuery, T2TradeQuery>();
+            services.AddTransient<IT2TradeGroupQuery, T2TradeGroupQuery>();
         }
     }
 }

@@ -11,6 +11,10 @@ using TradingTools.Db;
 using TradingTools.MathLib;
 using TradingTools.ExchangeServices;
 using CoinGecko.Clients;
+using TradingTools.Persistence.Queries;
+using System.Collections.Generic;
+using TradingTools.Db.Entities;
+using TradingTools.Persistence.Queries.Interfaces;
 
 namespace TradingTools.TestConsole
 {
@@ -42,7 +46,22 @@ namespace TradingTools.TestConsole
             using var db = new TradingToolsDbContext(optionsBuilder.Options);
             using var client = new BinanceClient(binanceOptions);
             var exchange = new BinanceExchangeService(client);
+            var tradeQuery = new T2TradeQuery(db);
 
+            var groups = tradeQuery.GroupByBaseAsset();
+            
+            foreach (var group in groups)
+            {
+                var tradeGroup = new T2TradeGroupEntity
+                {
+                    BaseAsset = group.baseAsset,
+                    Name = $"{group.baseAsset} Default",
+                    Trades = group.trades
+                };
+                db.T2TradeGroups.Add(tradeGroup);
+            }
+
+            await db.SaveChangesAsync();
 
             foreach (var item in db.T2Trades.Where(w => w.T2SymbolInfoId == null).ToList())
             {
@@ -208,6 +227,11 @@ namespace TradingTools.TestConsole
                     }
                 }
             }
+        }
+
+        private static void SeedTradeGroups(IT2TradeQuery tradeQuery)
+        {
+            
         }
 
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)

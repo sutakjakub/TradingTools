@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\src\TradingTools.Math\TradingTools.MathLib.csproj" />
     <ProjectReference Include="..\TradingTools.Db\TradingTools.Db.csproj" />
+    <ProjectReference Include="..\TradingTools.Persistence\TradingTools.Persistence.csproj" />
     <ProjectReference Include="..\TradingTools.Services\TradingTools.ExchangeServices.csproj" />
     <ProjectReference Include="..\TradingTools.Shared\TradingTools.Shared.csproj" />
   </ItemGroup>

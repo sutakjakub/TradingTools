@@ -1,0 +1,33 @@
+﻿@page "{id:long}"
+@model TradingTools.Web.Pages.TradeGroupDetailModel
+@{
+}
+
+<h1>
+    @Model.TradeGroup.Name
+</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Symbol</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Quote Quantity</th>
+            <th>Commission</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trade in Model.TradeGroup.Trades)
+        {
+        <tr>
+            <td>@trade.TradeTime.ToString("u")</td>
+            <td>@trade.Symbol</td>
+            <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
+            <td>@trade.Quantity @trade.T2SymbolInfo.BaseAsset</td>
+            <td>@trade.QuoteQuantity @trade.T2SymbolInfo.QuoteAsset</td>
+            <td>@trade.Commission @trade.CommissionAsset</td>
+        </tr>
+        }
+    </tbody>
+</table>

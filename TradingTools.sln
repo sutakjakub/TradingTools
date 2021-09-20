@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.TestConsole", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Web", "TradingTools.Web\TradingTools.Web.csproj", "{C04A1361-B4F6-423B-9858-DE70268771A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTools.Persistence", "TradingTools.Persistence\TradingTools.Persistence.csproj", "{70D531CB-D4CD-47C6-829F-217175216072}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Persistence", "TradingTools.Persistence\TradingTools.Persistence.csproj", "{70D531CB-D4CD-47C6-829F-217175216072}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

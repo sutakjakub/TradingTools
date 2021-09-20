@@ -34,7 +34,7 @@ namespace TradingTools.Db.Entities
         /// <summary>
         /// Identification of SymbolInfo
         /// </summary>
-        public long SymbolInfoId { get; set; }
+        public long? SymbolInfoId { get; set; }
 
         /// <summary>
         /// Base asset

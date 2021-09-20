@@ -19,7 +19,7 @@ using TradingTools.ExchangeServices;
 using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.Persistence;
 using TradingTools.Persistence.Queries;
-using TradingTools.Persistence.Queries.Interface;
+using TradingTools.Persistence.Queries.Interfaces;
 
 namespace TradingTools.Web
 {

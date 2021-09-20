@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TradingTools.Db.Entities;
 
-namespace TradingTools.Persistence.Queries.Interface
+namespace TradingTools.Persistence.Queries.Interfaces
 {
     public interface IT2TradeQuery
     {
@@ -11,6 +11,7 @@ namespace TradingTools.Persistence.Queries.Interface
         Task<IEnumerable<T2TradeEntity>> FindBySymbol(string symbol);
         Task<T2TradeEntity> FindLastTradeBySymbol(string symbol);
         Task<IEnumerable<T2TradeEntity>> FindWithoutSymbolInfo();
-        IEnumerable<(string symbol, List<T2TradeEntity> trades)> GroupBySymbol();
+        IEnumerable<(T2SymbolInfoEntity symbol, List<T2TradeEntity> trades)> GroupBySymbol();
+        IEnumerable<(string baseAsset, List<T2TradeEntity> trades)> GroupByBaseAsset();
     }
 }
