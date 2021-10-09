@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using TradingTools.Db.Entities;
 using TradingTools.Persistence.Queries.Interfaces;
+using TradingTools.Web.Business;
 
 namespace TradingTools.Web.Pages
 {
@@ -22,10 +23,14 @@ namespace TradingTools.Web.Pages
         }
 
         public T2TradeGroupEntity TradeGroup { get; private set; }
+        public TradeGroupBusinessModel Business { get; private set; }
 
         public async Task OnGet(long id)
         {
             TradeGroup = await _tradeGroupQuery.Find(id);
+            Business = new TradeGroupBusinessModel();
+
+
         }
     }
 }

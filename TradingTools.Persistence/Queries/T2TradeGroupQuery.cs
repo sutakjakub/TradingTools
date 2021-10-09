@@ -21,7 +21,7 @@ namespace TradingTools.Persistence.Queries
         public async Task<IEnumerable<T2TradeGroupEntity>> All()
         {
             return await _context.T2TradeGroups
-                .Include(group => group.Trades)
+                //.Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
                 .ToListAsync();
         }
@@ -30,8 +30,8 @@ namespace TradingTools.Persistence.Queries
         {
             return await _context.T2TradeGroups
                 .Include(i => i.SymbolInfo)
-                .Include(i => i.Trades.OrderBy(o => o.TradeTime))
-                .ThenInclude(trade => trade.T2SymbolInfo)
+                //.Include(i => i.Trades.OrderBy(o => o.TradeTime))
+                //.ThenInclude(trade => trade.T2SymbolInfo)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
@@ -39,7 +39,7 @@ namespace TradingTools.Persistence.Queries
         {
             return await _context.T2TradeGroups
                 .Where(p => p.BaseAsset == baseAsset)
-                .Include(group => group.Trades)
+                //.Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
                 .ToListAsync();
         }
@@ -47,7 +47,7 @@ namespace TradingTools.Persistence.Queries
         public async Task<IEnumerable<T2TradeGroupEntity>> FindBySymbol(string symbol)
         {
             return await _context.T2TradeGroups
-                .Include(group => group.Trades)
+                //.Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
                 .Where(p => p.SymbolInfo.Symbol == symbol)
                 .ToListAsync();

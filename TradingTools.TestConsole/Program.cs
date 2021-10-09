@@ -56,7 +56,7 @@ namespace TradingTools.TestConsole
                 {
                     BaseAsset = group.baseAsset,
                     Name = $"{group.baseAsset} Default",
-                    Trades = group.trades
+                    //Trades = group.trades
                 };
                 db.T2TradeGroups.Add(tradeGroup);
             }

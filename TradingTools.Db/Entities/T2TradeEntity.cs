@@ -32,6 +32,14 @@ namespace TradingTools.Db.Entities
         /// The T2SymbolInfo ID
         /// </summary>
         public long? T2SymbolInfoId { get; set; }
+        /// <summary>
+        /// The T2TradeGroup entity
+        /// </summary>
+        public T2TradeGroupEntity T2TradeGroup { get; set; }
+        /// <summary>
+        /// The T2TradeGroup ID
+        /// </summary>
+        public long? T2TradeGroupId { get; set; }
 
         /// <summary>
         /// Exchange type

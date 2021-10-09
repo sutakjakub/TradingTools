@@ -79,5 +79,14 @@ namespace TradingTools.Persistence.Queries
 
             return pp;
         }
+
+        //public async Task<T2TradeGroupEntity> Move(long tradeId, long tradeGroupId)
+        //{
+        //    var trade = await Find(tradeId);
+            
+        //    await _context.SaveChangesAsync();
+
+        //    return tradeGroup;
+        //}
     }
 }
