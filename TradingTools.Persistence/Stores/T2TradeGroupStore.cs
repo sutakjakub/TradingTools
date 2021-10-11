@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using TradingTools.Db;
 using TradingTools.Db.Entities;
+using TradingTools.Persistence.Stores.Interfaces;
 
 namespace TradingTools.Persistence.Stores
 {
-    public class T2TradeGroupStore
+    public class T2TradeGroupStore : IT2TradeGroupStore
     {
         private readonly TradingToolsDbContext _context;
         public T2TradeGroupStore(TradingToolsDbContext context)

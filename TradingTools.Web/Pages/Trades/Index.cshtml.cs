@@ -8,24 +8,25 @@ using Microsoft.Extensions.Logging;
 using TradingTools.Db.Entities;
 using TradingTools.Persistence.Queries.Interfaces;
 
-namespace TradingTools.Web.Pages
+namespace TradingTools.Web.Pages.Trades
 {
-    public class TradeGroupsModel : PageModel
+    public class IndexModel : PageModel
     {
-        private readonly ILogger<TradeGroupsModel> _logger;
-        private readonly IT2TradeGroupQuery _tradeGroupQuery;
+        private readonly ILogger<IndexModel> _logger;
+        private readonly IT2TradeQuery _tradeQuery;
 
-        public TradeGroupsModel(ILogger<TradeGroupsModel> logger, IT2TradeGroupQuery tradeGroupQuery)
+        public IndexModel(ILogger<IndexModel> logger, IT2TradeQuery tradeQuery)
         {
             _logger = logger;
-            _tradeGroupQuery = tradeGroupQuery ?? throw new ArgumentNullException(nameof(tradeGroupQuery));
+            _tradeQuery = tradeQuery ?? throw new ArgumentNullException(nameof(tradeQuery));
         }
 
+        public IEnumerable<T2TradeEntity> Trades { get; private set; }
         public IEnumerable<T2TradeGroupEntity> TradeGroups { get; private set; }
 
         public async Task OnGet()
         {
-            TradeGroups = await _tradeGroupQuery.All();
+            Trades = await _tradeQuery.All();
         }
     }
 }

@@ -13,5 +13,6 @@ namespace TradingTools.Persistence.Queries.Interfaces
         Task<IEnumerable<T2TradeEntity>> FindWithoutSymbolInfo();
         IEnumerable<(T2SymbolInfoEntity symbol, List<T2TradeEntity> trades)> GroupBySymbol();
         IEnumerable<(string baseAsset, List<T2TradeEntity> trades)> GroupByBaseAsset();
+        Task<IEnumerable<T2TradeEntity>> FindBySymbolOutsideTradeGroup(string symbol, long tradeGroupId);
     }
 }

@@ -55,8 +55,8 @@ namespace TradingTools.TestConsole
                 var tradeGroup = new T2TradeGroupEntity
                 {
                     BaseAsset = group.baseAsset,
-                    Name = $"{group.baseAsset} Default",
-                    //Trades = group.trades
+                    Name = $"Default_{group.baseAsset}",
+                    Trades = group.trades
                 };
                 db.T2TradeGroups.Add(tradeGroup);
             }
