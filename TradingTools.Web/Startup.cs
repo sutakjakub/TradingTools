@@ -14,12 +14,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TradingTools.Core.Business;
+using TradingTools.Core.Business.Interfaces;
+using TradingTools.Core.Synchronization;
+using TradingTools.Core.Synchronization.Interfaces;
 using TradingTools.Db;
 using TradingTools.ExchangeServices;
 using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.Persistence;
 using TradingTools.Persistence.Queries;
 using TradingTools.Persistence.Queries.Interfaces;
+using TradingTools.Web.ViewModels;
+using TradingTools.Web.ViewModels.Interfaces;
 
 namespace TradingTools.Web
 {
@@ -38,6 +44,8 @@ namespace TradingTools.Web
             services.AddDbContext<TradingToolsDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            PersistenceRegistrator.RegisterEverything(services);
+
             services.AddScoped<IBinanceClient>((serviceProvider) =>
             {
                 var options = new BinanceClientOptions
@@ -47,9 +55,10 @@ namespace TradingTools.Web
                 };
                 return new BinanceClient(options);
             });
-            services.AddTransient<IBinanceExchangeService, BinanceExchangeService>();
-
-            PersistenceRegistrator.RegisterEverything(services);
+            services.AddScoped<IBinanceExchangeService, BinanceExchangeService>();
+            services.AddScoped<IT2Synchronizator, T2Synchronizator>();
+            services.AddScoped<ITradeGroupStatisticsBusiness, TradeGroupStatisticsBusiness>();
+            services.AddScoped<ITradeGroupViewModel, TradeGroupViewModel>();
 
             services.AddRazorPages();
         }

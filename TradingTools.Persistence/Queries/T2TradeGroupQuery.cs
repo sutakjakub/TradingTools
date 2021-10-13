@@ -53,5 +53,23 @@ namespace TradingTools.Persistence.Queries
                 .Where(p => p.SymbolInfo.Symbol == symbol)
                 .ToListAsync();
         }
+
+        public async Task<T2TradeGroupEntity> FindDefaultByBaseAsset(string baseAsset)
+        {
+            return await _context.T2TradeGroups
+                .Include(group => group.Trades)
+                .Include(group => group.SymbolInfo)
+                .Where(p => p.BaseAsset == baseAsset && p.Name == $"Default_{baseAsset}")
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<T2TradeGroupEntity> FindLastGroupBySymbol(string symbol)
+        {
+            return await _context.T2TradeGroups
+                .Include(group => group.Trades)
+                .Include(group => group.SymbolInfo)
+                .OrderByDescending(o => o.Created)
+                .FirstOrDefaultAsync(p => p.SymbolInfo.Symbol == symbol);
+        }
     }
 }

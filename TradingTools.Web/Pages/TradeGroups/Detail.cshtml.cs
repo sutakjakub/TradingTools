@@ -5,36 +5,48 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using TradingTools.Core.Synchronization.Interfaces;
 using TradingTools.Db.Entities;
 using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.MathLib;
 using TradingTools.Persistence.Queries.Interfaces;
 using TradingTools.Persistence.Stores.Interfaces;
-using TradingTools.Web.Business;
+using TradingTools.Web.ViewModels.Interfaces;
 
 namespace TradingTools.Web.Pages.TradeGroupDetail
 {
     public class DetailModel : PageModel
     {
         private readonly ILogger<DetailModel> _logger;
+        private readonly IServiceProvider _provider;
         private readonly IT2TradeGroupQuery _tradeGroupQuery;
         private readonly IT2TradeQuery _tradeQuery;
         private readonly IT2TradeStore _tradeStore;
+        private readonly IT2Synchronizator _synchronizator;
         private readonly IBinanceExchangeService _binance;
 
-        public DetailModel(ILogger<DetailModel> logger, IT2TradeGroupQuery tradeGroupQuery, IT2TradeQuery tradeQuery, IT2TradeStore tradeStore, IBinanceExchangeService binance)
+        public DetailModel(
+            ILogger<DetailModel> logger,
+            IServiceProvider provider,
+            IT2TradeGroupQuery tradeGroupQuery,
+            IT2TradeQuery tradeQuery,
+            IT2TradeStore tradeStore,
+            IT2Synchronizator synchronizator,
+            IBinanceExchangeService binance)
         {
             _logger = logger;
+            _provider = provider;
             _tradeGroupQuery = tradeGroupQuery;
             _tradeQuery = tradeQuery;
             _tradeStore = tradeStore;
+            _synchronizator = synchronizator;
             _binance = binance;
         }
 
-        public T2TradeGroupEntity TradeGroup { get; private set; }
-        public TradeGroupBusinessModel Business { get; private set; }
+        public ITradeGroupViewModel ViewModel { get; private set; }
 
-        public IEnumerable<T2TradeEntity> Trades { get; private set; }
+        public IEnumerable<T2TradeEntity> OutsideTrades { get; private set; }
 
         [BindProperty]
         public List<long> AreChecked { get; set; } = new List<long>();
@@ -44,20 +56,22 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
 
         public async Task OnGetAsync(long id)
         {
-            TradeGroup = await _tradeGroupQuery.Find(id);
-            Trades = await _tradeQuery.FindBySymbolOutsideTradeGroup(TradeGroup.SymbolInfo.Symbol, id);
-            Business = new TradeGroupBusinessModel();
-            
-            var prices = await _binance.GetPricesAsync();
-
-            TradeSummary = new TradeSummaryModel
+            var tradeGroup = await _tradeGroupQuery.Find(id);
+            ViewModel = _provider.GetService<ITradeGroupViewModel>();
+            await ViewModel.Init(tradeGroup);
+            if (tradeGroup.SymbolInfo != null)
             {
-                Symbol = TradeGroup.SymbolInfo.Symbol
-            };
-            TradeSummary.AveragePrice = AverageCost(TradeGroup.Trades);
-            TradeSummary.Quantity = DiffQuantity(TradeGroup.Trades);
-            TradeSummary.CurrentSymbolPrice = prices.Single(s => s.Symbol == TradeSummary.Symbol).Price;
-            TradeSummary.GainPercentage = CurrentGain(TradeSummary.CurrentSymbolPrice, TradeSummary.AveragePrice);
+                OutsideTrades = await _tradeQuery.FindBySymbolOutsideTradeGroup(tradeGroup.SymbolInfo.Symbol, id);
+                var prices = await _binance.GetPricesAsync();
+                TradeSummary = new TradeSummaryModel
+                {
+                    Symbol = tradeGroup.SymbolInfo.Symbol
+                };
+                TradeSummary.AveragePrice = AverageCost(tradeGroup.Trades);
+                TradeSummary.Quantity = DiffQuantity(tradeGroup.Trades);
+                TradeSummary.CurrentSymbolPrice = prices.Single(s => s.Symbol == TradeSummary.Symbol).Price;
+                TradeSummary.GainPercentage = CurrentGain(TradeSummary.CurrentSymbolPrice, TradeSummary.AveragePrice);
+            }
         }
 
         public async Task<IActionResult> OnPostAssign(long id)
@@ -69,6 +83,20 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
                 await _tradeStore.Update(trade);
             }
             return RedirectToPage("Detail", new { id });
+        }
+
+        public async Task<IActionResult> OnPostSync(long groupId, string symbol, string baseAsset)
+        {
+            if (!string.IsNullOrWhiteSpace(symbol))
+            {
+                _ = await _synchronizator.SyncBySymbol(symbol);
+            }
+            else
+            {
+                _ = await _synchronizator.SyncByBaseAsset(baseAsset);
+            }
+
+            return RedirectToPage("Detail", new { id = groupId });
         }
 
         private static decimal AverageCost(IEnumerable<T2TradeEntity> source)

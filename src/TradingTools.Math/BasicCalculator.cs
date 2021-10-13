@@ -228,11 +228,11 @@ namespace TradingTools.MathLib
                 numerator -= quantity * price;
             }
 
-            var result = numerator / denominator;
+            var result = Math.Abs(numerator / denominator);
             return SolveRound(result, decimalPlaces);
         }
 
-        public static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> source)
+        public static decimal AverageCost(IEnumerable<(decimal quantity, decimal price)> source, int decimalPlaces = 8)
         {
             if (!source.Any())
             {
@@ -245,7 +245,8 @@ namespace TradingTools.MathLib
                 intermediateResult += quantity * price;
             }
 
-            return intermediateResult / source.Sum(s => s.quantity);
+            var result = intermediateResult / source.Sum(s => s.quantity);
+            return SolveRound(result, decimalPlaces);
         }
 
         //public static decimal CostBasis(IEnumerable<CostBasisModel> source, int decimalPlaces = 2)

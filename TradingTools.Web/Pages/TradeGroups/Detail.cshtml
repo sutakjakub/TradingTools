@@ -3,30 +3,79 @@
 @{
 }
 
+<style scoped>
+    .table.summary {
+        width: 50%;
+    }
+        .table.summary tr {
+            line-height: 10px;
+            min-height: 10px;
+            height: 10px;
+        }
+
+    .table.summary td {
+        white-space: nowrap;
+        width: 1%;
+    }
+</style>
+
 <div>
     <h1>
-        @Model.TradeGroup.Name
+        @Model.ViewModel.TradeGroup.Name
     </h1>
-    <h4>@Model.TradeGroup.SymbolInfo?.Symbol</h4>
-    <div class="float-right">
-        <table>
+    <h4>@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol</h4>
+    <table class="table table-hover small summary">
+        <tbody>
             <tr>
-                <td>Average Price</td>
-                <td>@Model.TradeSummary.AveragePrice</td>
+                <td>Buy Quantity</td>
+                <td>@Model.ViewModel.BuyQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.BaseAsset</td>
             </tr>
             <tr>
-                <td>Current symbol price</td>
-                <td>@Model.TradeSummary.CurrentSymbolPrice</td>
+                <td>Sell Quantity</td>
+                <td>@Model.ViewModel.SellQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.BaseAsset</td>
             </tr>
             <tr>
-                <td>Gain (%)</td>
-                <td>@Model.TradeSummary.GainPercentage</td>
+                <td>Average Buy Price</td>
+                <td>@Model.ViewModel.AverageBuyPrice @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
             </tr>
-        </table>
-    </div>
+            <tr>
+                <td>Average Sell Price</td>
+                <td>@Model.ViewModel.AverageSellPrice @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
+            </tr>
+            <tr>
+                <td>Average Cost</td>
+                <td>@Model.ViewModel.AverageCost @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
+            </tr>
+            <tr>
+                <td>Gain/Loss</td>
+                <td>
+                    @if (@Model.ViewModel.Gain >= 0)
+                    {
+                    <span class="bg-success text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
+                    }
+                    else
+                    {
+                    <span class="bg-danger text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
+                    }
+                    
+                </td>
+            </tr>
+            <tr>
+                <td>Remaing Position</td>
+                <td>@Model.ViewModel.RemaingPositionPercentageString</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-<table class="table">
+<form asp-page-handler="sync" method="post">
+    <input type="hidden" name="groupId" value="@Model.ViewModel.TradeGroup.Id" />
+    <input type="hidden" name="symbol" value="@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol" />
+    <input type="hidden" name="baseAsset" value="@Model.ViewModel.TradeGroup.BaseAsset" />
+    <button class="btn btn-primary">Sync</button>
+</form>
+
+<table class="table table-hover">
     <thead>
         <tr>
             <th>Date</th>
@@ -39,10 +88,10 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var trade in Model.TradeGroup.Trades)
+        @foreach (var trade in Model.ViewModel.TradeGroup.Trades)
         {
             <tr>
-                <td>@trade.TradeTime.ToString("u")</td>
+                <td><div class="d-block"><span>@trade.TradeTime.ToString("u")</span> <span class="small">@(Math.Round((@DateTime.Now - @trade.TradeTime).TotalDays))(days ago)</span></div></td>
                 <td>@trade.Symbol</td>
                 <td>
                     @if (@trade.IsBuyer)
@@ -63,11 +112,11 @@
     </tbody>
 </table>
 
-@if (@Model.Trades?.Any() == true)
+@if (@Model.OutsideTrades?.Any() == true)
 {
     <form asp-page-handler="assign" method="post">
-        <input type="hidden" name="id" value="@Model.TradeGroup.Id" />
-        <button class="btn btn-default">Assign to group</button>
+        <input type="hidden" name="id" value="@Model.ViewModel.TradeGroup.Id" />
+        <button class="btn btn-primary">Assign to group</button>
         <table class="table">
             <thead>
                 <tr>
@@ -82,7 +131,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var trade in Model.Trades)
+                @foreach (var trade in Model.OutsideTrades)
                 {
                     <tr>
                         <td><input name="AreChecked" type="checkbox" value="@trade.Id" /></td>

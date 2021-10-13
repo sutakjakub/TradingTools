@@ -20,7 +20,7 @@
             {
                 <tr>
                     <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.Id">@group.Name</a></td>
-                    <td>@group.BaseAsset</td>
+                    <td>@(group.SymbolInfo != null ? group.SymbolInfo.Symbol : group.BaseAsset)</td>
                     <td>@group.Trades.Count</td>
                     <td>@group.Description</td>
                 </tr>

@@ -55,6 +55,14 @@ namespace TradingTools.Persistence.Queries
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<T2TradeEntity> FindByTradeId(long tradeId)
+        {
+            return await _context.T2Trades
+                .Include(trade => trade.T2SymbolInfo)
+                .Include(trade => trade.T2TradeGroup)
+                .FirstOrDefaultAsync(w => w.TradeId == tradeId);
+        }
+
         public async Task<T2TradeEntity> Find(long id)
         {
             return await _context.T2Trades

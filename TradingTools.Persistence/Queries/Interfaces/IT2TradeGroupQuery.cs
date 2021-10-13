@@ -8,9 +8,9 @@ namespace TradingTools.Persistence.Queries.Interfaces
     {
         Task<T2TradeGroupEntity> Find(long id);
         Task<IEnumerable<T2TradeGroupEntity>> All();
-
         Task<IEnumerable<T2TradeGroupEntity>> FindByBaseAsset(string baseAsset);
-
         Task<IEnumerable<T2TradeGroupEntity>> FindBySymbol(string symbol);
+        Task<T2TradeGroupEntity> FindLastGroupBySymbol(string symbol);
+        Task<T2TradeGroupEntity> FindDefaultByBaseAsset(string baseAsset);
     }
 }
