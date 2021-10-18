@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,17 @@ namespace TradingTools.Persistence.Stores
             await _context.SaveChangesAsync();
 
             return trade;
+        }
+
+        public async Task MoveTo(IEnumerable<long> tradeIds, long tradeGroupId)
+        {
+            var trades = await _context.T2Trades
+                .Where(p => tradeIds.Contains(p.Id)).ToListAsync();
+            foreach (var item in trades)
+            {
+                item.T2TradeGroupId = tradeGroupId;
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }

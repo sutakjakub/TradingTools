@@ -10,8 +10,10 @@ namespace TradingTools.Core.Business.Interfaces
         decimal AverageCost(IEnumerable<T2TradeEntity> trades);
         decimal AverageSellPrice(IEnumerable<T2TradeEntity> trades);
         decimal BuyQuantity(IEnumerable<T2TradeEntity> trades);
-        Task<decimal> Gain(IEnumerable<T2TradeEntity> trades);
+        decimal TotalGain(IEnumerable<T2TradeEntity> trades);
+        decimal TotalGainQuoteAsset(IEnumerable<T2TradeEntity> trades);
         decimal SellQuantity(IEnumerable<T2TradeEntity> trades);
         decimal RemaingPositionPercentage(IEnumerable<T2TradeEntity> trades);
+
     }
 }

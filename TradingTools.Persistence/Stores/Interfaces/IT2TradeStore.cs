@@ -11,5 +11,6 @@ namespace TradingTools.Persistence.Stores.Interfaces
     {
         Task<T2TradeEntity> Update(T2TradeEntity trade);
         Task<T2TradeEntity> Create(T2TradeEntity trade);
+        Task MoveTo(IEnumerable<long> tradeIds, long tradeGroupId);
     }
 }

@@ -40,5 +40,10 @@ namespace TradingTools.Db.Entities
         /// Base asset
         /// </summary>
         public string BaseAsset { get; set; }
+
+        /// <summary>
+        /// Is default trade group for base asset?
+        /// </summary>
+        public bool IsDefault { get; set; }
     }
 }

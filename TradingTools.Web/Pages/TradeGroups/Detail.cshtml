@@ -7,16 +7,17 @@
     .table.summary {
         width: 50%;
     }
+
         .table.summary tr {
             line-height: 10px;
             min-height: 10px;
             height: 10px;
         }
 
-    .table.summary td {
-        white-space: nowrap;
-        width: 1%;
-    }
+        .table.summary td {
+            white-space: nowrap;
+            width: 1%;
+        }
 </style>
 
 <div>
@@ -51,13 +52,27 @@
                 <td>
                     @if (@Model.ViewModel.Gain >= 0)
                     {
-                    <span class="bg-success text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
+                        <span class="bg-success text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
                     }
                     else
                     {
-                    <span class="bg-danger text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
+                        <span class="bg-danger text-light pl-2 pr-2">@Model.ViewModel.GainString</span>
                     }
-                    
+
+                </td>
+            </tr>
+            <tr>
+                <td>Gain/Loss Quote Asset</td>
+                <td>
+                    @if (@Model.ViewModel.GainQuoteAsset >= 0)
+                    {
+                        <span class="bg-success text-light pl-2 pr-2">@Model.ViewModel.GainQuoteAssetString</span>
+                    }
+                    else
+                    {
+                        <span class="bg-danger text-light pl-2 pr-2">@Model.ViewModel.GainQuoteAssetString</span>
+                    }
+
                 </td>
             </tr>
             <tr>
@@ -75,42 +90,60 @@
     <button class="btn btn-primary">Sync</button>
 </form>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Symbol</th>
-            <th>Side</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Quote Quantity</th>
-            <th>Commission</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var trade in Model.ViewModel.TradeGroup.Trades)
-        {
+<form asp-page-handler="remove" method="post">
+    <input type="hidden" name="groupId" value="@Model.ViewModel.TradeGroup.Id" />
+    <button class="btn btn-danger">Remove from group</button>
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td><div class="d-block"><span>@trade.TradeTime.ToString("u")</span> <span class="small">@(Math.Round((@DateTime.Now - @trade.TradeTime).TotalDays))(days ago)</span></div></td>
-                <td>@trade.Symbol</td>
-                <td>
-                    @if (@trade.IsBuyer)
-                    {
-                        <span class="bg-success text-light pl-2 pr-2">BUY</span>
-                    }
-                    else
-                    {
-                        <span class="bg-danger text-light pl-2 pr-2">SELL</span>
-                    }
-                </td>
-                <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
-                <td>@trade.Quantity @trade.T2SymbolInfo.BaseAsset</td>
-                <td>@trade.QuoteQuantity @trade.T2SymbolInfo.QuoteAsset</td>
-                <td>@trade.Commission @trade.CommissionAsset</td>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Side</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Quote Quantity</th>
+                <th>Commission</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ViewModel.Trades)
+            {
+                <tr>
+                    <td><div class="d-block"><span>@item.Trade.TradeTime.ToString("u")</span> <div class="d-block small">@(Math.Round((@DateTime.Now - item.Trade.TradeTime).TotalDays))(days ago)</div></div></td>
+                    <td>@item.Trade.Symbol</td>
+                    <td>
+                        @if (@item.Trade.IsBuyer)
+                        {
+                            <span class="bg-success text-light pl-2 pr-2">BUY</span>
+                        }
+                        else
+                        {
+                            <span class="bg-danger text-light pl-2 pr-2">SELL</span>
+                        }
+                    </td>
+                    <td>
+                        @item.Trade.Price @item.Trade.T2SymbolInfo.QuoteAsset
+                    </td>
+                    <td>
+                        @item.Trade.Quantity @item.Trade.T2SymbolInfo.BaseAsset
+                        <div class="d-block" style="font-size: 80%;">
+                            @item.CurrentBaseAssetQuantity @item.Trade.T2SymbolInfo.BaseAsset
+                        </div>
+                    </td>
+                    <td>
+                        @item.Trade.QuoteQuantity @item.Trade.T2SymbolInfo.QuoteAsset
+                        <div class="d-block" style="font-size: 80%;">
+                            @item.CurrentQuoteAssetQuantity @item.Trade.T2SymbolInfo.QuoteAsset
+                        </div>
+                    </td>
+                    <td>@item.Trade.Commission @item.Trade.CommissionAsset</td>
+                    <td><input name="AreCheckedForRemove" type="checkbox" value="@item.Trade.Id" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
 
 @if (@Model.OutsideTrades?.Any() == true)
 {
@@ -124,6 +157,7 @@
                     <th>TradeTime</th>
                     <th>TradeGroup</th>
                     <th>Symbol</th>
+                    <th>Side</th>
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>QuoteQuantity</th>
@@ -133,16 +167,26 @@
             <tbody>
                 @foreach (var trade in Model.OutsideTrades)
                 {
-                    <tr>
-                        <td><input name="AreChecked" type="checkbox" value="@trade.Id" /></td>
-                        <td>@trade.TradeTime</td>
-                        <td><a asp-page="/TradeGroups/Detail" asp-route-id="@trade.T2TradeGroup.Id">@trade.T2TradeGroup.Name</a></td>
-                        <td>@trade.Symbol</td>
-                        <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
-                        <td>@trade.Quantity</td>
-                        <td>@trade.QuoteQuantity</td>
-                        <td>@trade.Commission @trade.CommissionAsset</td>
-                    </tr>
+                <tr>
+                    <td><input name="AreChecked" type="checkbox" value="@trade.Id" /></td>
+                    <td>@trade.TradeTime.ToString("u")<br /> <span class="small">@(Math.Round((@DateTime.Now - @trade.TradeTime).TotalDays))(days ago)</span></td>
+                    <td><a asp-page="/TradeGroups/Detail" asp-route-id="@trade.T2TradeGroup.Id">@trade.T2TradeGroup.Name</a></td>
+                    <td>@trade.Symbol</td>
+                    <td>
+                        @if (@trade.IsBuyer)
+                        {
+                            <span class="bg-success text-light pl-2 pr-2">BUY</span>
+                        }
+                        else
+                        {
+                            <span class="bg-danger text-light pl-2 pr-2">SELL</span>
+                        }
+                    </td>
+                    <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
+                    <td>@trade.Quantity</td>
+                    <td>@trade.QuoteQuantity</td>
+                    <td>@trade.Commission @trade.CommissionAsset</td>
+                </tr>
                 }
             </tbody>
         </table>

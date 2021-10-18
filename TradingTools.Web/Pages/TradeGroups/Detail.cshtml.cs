@@ -51,26 +51,17 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
         [BindProperty]
         public List<long> AreChecked { get; set; } = new List<long>();
 
-
-        public TradeSummaryModel TradeSummary { get; set; }
+        [BindProperty]
+        public List<long> AreCheckedForRemove { get; set; } = new List<long>();
 
         public async Task OnGetAsync(long id)
         {
             var tradeGroup = await _tradeGroupQuery.Find(id);
             ViewModel = _provider.GetService<ITradeGroupViewModel>();
-            await ViewModel.Init(tradeGroup);
+            ViewModel.Init(tradeGroup);
             if (tradeGroup.SymbolInfo != null)
             {
                 OutsideTrades = await _tradeQuery.FindBySymbolOutsideTradeGroup(tradeGroup.SymbolInfo.Symbol, id);
-                var prices = await _binance.GetPricesAsync();
-                TradeSummary = new TradeSummaryModel
-                {
-                    Symbol = tradeGroup.SymbolInfo.Symbol
-                };
-                TradeSummary.AveragePrice = AverageCost(tradeGroup.Trades);
-                TradeSummary.Quantity = DiffQuantity(tradeGroup.Trades);
-                TradeSummary.CurrentSymbolPrice = prices.Single(s => s.Symbol == TradeSummary.Symbol).Price;
-                TradeSummary.GainPercentage = CurrentGain(TradeSummary.CurrentSymbolPrice, TradeSummary.AveragePrice);
             }
         }
 
@@ -85,6 +76,15 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
             return RedirectToPage("Detail", new { id });
         }
 
+        public async Task<IActionResult> OnPostRemove(long groupId)
+        {
+            var tradeGroup = await _tradeGroupQuery.Find(groupId);
+            var defaultTradeGroup = await _tradeGroupQuery.FindDefaultByBaseAsset(tradeGroup.SymbolInfo.BaseAsset);
+            await _tradeStore.MoveTo(AreCheckedForRemove, defaultTradeGroup.Id);
+
+            return RedirectToPage("Detail", new { groupId });
+        }
+
         public async Task<IActionResult> OnPostSync(long groupId, string symbol, string baseAsset)
         {
             if (!string.IsNullOrWhiteSpace(symbol))
@@ -97,63 +97,6 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
             }
 
             return RedirectToPage("Detail", new { id = groupId });
-        }
-
-        private static decimal AverageCost(IEnumerable<T2TradeEntity> source)
-        {
-            var buyEntries = source
-                .Where(p => p.IsBuyer)
-                .Select(c => new { c.Quantity, c.Price })
-                .AsEnumerable()
-                .Select(s => (quantity: s.Quantity, price: s.Price));
-
-            var sellEntries = source
-                 .Where(p => !p.IsBuyer)
-                 .Select(c => new { c.Quantity, c.Price })
-                 .AsEnumerable()
-                 .Select(s => (quantity: s.Quantity, price: s.Price));
-
-            return BasicCalculator.AverageCost(buyEntries, sellEntries, 8);
-        }
-        private static decimal CurrentGain(decimal currentPrice, decimal averagePrice)
-        {
-            if (averagePrice == 0)
-            {
-                return 0;
-            }
-
-            if (averagePrice <= currentPrice)
-            {
-                var increase = currentPrice - averagePrice;
-                return increase / averagePrice;
-            }
-            else
-            {
-                var decrease = averagePrice - currentPrice;
-                return (decrease / averagePrice) * -1;
-            }
-        }
-        private static decimal DiffQuantity(IEnumerable<T2TradeEntity> items)
-        {
-            return items.Where(p => p.IsBuyer).Sum(s => s.Quantity) - items.Where(p => !p.IsBuyer).Sum(s => s.Quantity);
-        }
-        public class TradeSummaryModel
-        {
-            public string Symbol { get; set; }
-            public decimal Quantity { get; set; }
-            public decimal AveragePrice { get; set; }
-            public decimal GainPercentage { get; set; }
-            public decimal CurrentSymbolPrice { get; set; }
-            public decimal CurrentValue
-            {
-                get
-                {
-                    return Quantity * CurrentSymbolPrice;
-                }
-            }
-            public decimal DollarPrice { get; set; }
-
-            //public IEnumerable<T2TradeDto> Trades { get; set; }
         }
     }
 }

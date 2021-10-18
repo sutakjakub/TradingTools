@@ -21,8 +21,9 @@ namespace TradingTools.Persistence.Queries
         public async Task<IEnumerable<T2TradeGroupEntity>> All()
         {
             return await _context.T2TradeGroups
-                .Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
+                .Include(group => group.Trades)
+                .ThenInclude(trade => trade.T2SymbolInfo)
                 .ToListAsync();
         }
 
@@ -32,7 +33,6 @@ namespace TradingTools.Persistence.Queries
                 .Include(i => i.SymbolInfo)
                 .Include(i => i.Trades)
                 .Include(i => i.Trades.OrderBy(o => o.TradeTime))
-                .ThenInclude(trade => trade.T2SymbolInfo)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 

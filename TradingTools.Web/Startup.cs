@@ -58,7 +58,7 @@ namespace TradingTools.Web
             services.AddScoped<IBinanceExchangeService, BinanceExchangeService>();
             services.AddScoped<IT2Synchronizator, T2Synchronizator>();
             services.AddScoped<ITradeGroupStatisticsBusiness, TradeGroupStatisticsBusiness>();
-            services.AddScoped<ITradeGroupViewModel, TradeGroupViewModel>();
+            services.AddTransient<ITradeGroupViewModel, TradeGroupViewModel>();
 
             services.AddRazorPages();
         }

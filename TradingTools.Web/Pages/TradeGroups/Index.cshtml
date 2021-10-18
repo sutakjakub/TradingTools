@@ -6,24 +6,36 @@
 <div>
     <a asp-page="./create" class="btn btn-primary">Create New Group</a>
 
-    <table class="table">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Created</th>
                 <th>Symbol</th>
+                <th>Gain/Loss</th>
                 <th>Trades count</th>
-                <th>Description</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var group in Model.TradeGroups)
             {
-                <tr>
-                    <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.Id">@group.Name</a></td>
-                    <td>@(group.SymbolInfo != null ? group.SymbolInfo.Symbol : group.BaseAsset)</td>
-                    <td>@group.Trades.Count</td>
-                    <td>@group.Description</td>
-                </tr>
+            <tr style="opacity: @(group.TradeGroup.IsDefault ? 0.3 : 1)">
+                <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
+                <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm")</td>
+                <td>@(group.TradeGroup.SymbolInfo != null ? group.TradeGroup.SymbolInfo.Symbol : group.TradeGroup.BaseAsset)</td>
+                <td>
+                    @if (group.Gain >= 0)
+                    {
+                    <span class="bg-success text-light pl-2 pr-2">@group.GainString</span>
+                    }
+                    else
+                    {
+                <span class="bg-danger text-light pl-2 pr-2">@group.GainString</span>
+                    }
+
+                </td>
+                <td>@group.TradeGroup.Trades.Count</td>
+            </tr>
             }
         </tbody>
     </table>

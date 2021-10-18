@@ -204,5 +204,13 @@ namespace TradingTools.ExchangeServices
 
             return list.Select(s => new ExchangePriceDto { Price = s.Price, Symbol = s.Symbol, Timestamp = s.Timestamp });
         }
+
+        public async Task<IEnumerable<BinanceUserCoinDto>> GetUserCoinsAsync()
+        {
+            var result = await _client.General.GetUserCoinsAsync();
+            var list = result.Data.ToList();
+
+            return list.Select(s => new BinanceUserCoinDto { Coin = s.Coin, Free = s.Free, Locked = s.Locked, Name = s.Name });
+        }
     }
 }

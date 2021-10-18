@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Web", "Trading
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Persistence", "TradingTools.Persistence\TradingTools.Persistence.csproj", "{70D531CB-D4CD-47C6-829F-217175216072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTools.Core", "src\TradingTools.Core\TradingTools.Core.csproj", "{D6528FA5-1B9B-4806-AEAE-DBFAB3EB7B49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Core", "src\TradingTools.Core\TradingTools.Core.csproj", "{D6528FA5-1B9B-4806-AEAE-DBFAB3EB7B49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

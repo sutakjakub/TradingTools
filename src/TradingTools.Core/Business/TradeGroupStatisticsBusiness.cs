@@ -47,30 +47,42 @@ namespace TradingTools.Core.Business
             return Quantity(trades, false);
         }
 
-        public async Task<decimal> Gain(IEnumerable<T2TradeEntity> trades)
+        public decimal TotalGain(IEnumerable<T2TradeEntity> trades)
         {
-            var averagePrice = AverageCost(trades);
-            var currentPrice = await _binance.GetPriceAsync(trades.First().Symbol);
-            if (averagePrice == 0)
+            var averageBuyPrice = AverageBuyPrice(trades);
+            var averageSellPrice = AverageSellPrice(trades);
+            if (averageSellPrice == 0)
             {
                 return 0;
             }
 
-            if (averagePrice <= currentPrice)
+            if (averageBuyPrice <= averageSellPrice)
             {
-                var increase = currentPrice - averagePrice;
-                return increase / averagePrice;
+                var increase = averageSellPrice - averageBuyPrice;
+                return increase / averageSellPrice;
             }
             else
             {
-                var decrease = averagePrice - currentPrice;
-                return (decrease / averagePrice) * -1;
+                var decrease = averageSellPrice - averageBuyPrice;
+                return decrease / averageSellPrice;
             }
+        }
+
+        public decimal TotalGainQuoteAsset(IEnumerable<T2TradeEntity> trades)
+        {
+            var totalGain = TotalGain(trades);
+            var sum = trades.Where(p => p.IsBuyer).Sum(s => s.QuoteQuantity);
+
+            return totalGain * sum;
         }
 
         public decimal RemaingPositionPercentage(IEnumerable<T2TradeEntity> trades)
         {
             var total = BuyQuantity(trades);
+            if (total == 0)
+            {
+                return 0;
+            }
             var diff = total - SellQuantity(trades);
             return diff / total;
         }

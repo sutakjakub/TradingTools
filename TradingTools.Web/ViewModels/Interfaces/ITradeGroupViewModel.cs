@@ -14,11 +14,14 @@ namespace TradingTools.Web.ViewModels.Interfaces
         decimal BuyQuantity { get; }
         decimal Gain { get; }
         string GainString { get; }
+        decimal GainQuoteAsset { get; }
+        string GainQuoteAssetString { get; }
         decimal RemaingPositionPercentage { get; }
         string RemaingPositionPercentageString { get; }
         decimal SellQuantity { get; }
         T2TradeGroupEntity TradeGroup { get; set; }
+        IList<TradeTimeLineValueViewModel> Trades { get; }
 
-        Task Init(T2TradeGroupEntity tradeGroup);
+        void Init(T2TradeGroupEntity tradeGroup);
     }
 }
