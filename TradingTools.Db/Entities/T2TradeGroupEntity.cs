@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradingTools.Db.Enums;
 
 namespace TradingTools.Db.Entities
 {
@@ -45,5 +46,10 @@ namespace TradingTools.Db.Entities
         /// Is default trade group for base asset?
         /// </summary>
         public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// Trade state
+        /// </summary>
+        public TradeGroupState TradeGroupState { get; set; }
     }
 }

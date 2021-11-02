@@ -56,7 +56,17 @@ namespace TradingTools.Web.Pages.Portfolio
                 temp.Add(vm);
             }
 
-            Coins = temp.OrderByDescending(o => o.TotalDollarValue).ToList();
+            Coins = temp.Where(p => p.TotalDollarValue > 3).OrderByDescending(o => o.TotalDollarValue).ToList();
+
+            int initCount = Coins.Count - 1;
+
+            for (int i = initCount; i >= 0; i--)
+            {
+                if (i + 1 <= initCount)
+                {
+                    Coins[i].CurrentTimeLineDollarValue += Coins[i + 1].CurrentTimeLineDollarValue + Coins[i].TotalDollarValue;
+                }
+            }
         }
     }
 }

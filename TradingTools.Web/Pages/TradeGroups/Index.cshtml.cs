@@ -41,7 +41,10 @@ namespace TradingTools.Web.Pages.TradeGroups
                 list.Add(viewModel);
             }
 
-            TradeGroups = list.OrderBy(o => o.TradeGroup.IsDefault).ThenByDescending(o => o.TradeGroup.Created).ToList();
+            TradeGroups = list
+                .OrderBy(o => o.TradeGroup.IsDefault)
+                .ThenByDescending(o=>o.TradeGroup.TradeGroupState != Db.Enums.TradeGroupState.Done)
+                .ThenByDescending(o => o.TradeGroup.Created).ToList();
         }
     }
 }

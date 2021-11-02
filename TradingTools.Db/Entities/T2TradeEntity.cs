@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradingTools.Db.Enums;
 using TradingTools.Shared.Enums;
 
 namespace TradingTools.Db.Entities
@@ -98,5 +99,10 @@ namespace TradingTools.Db.Entities
         /// Whether trade was made with the best match
         /// </summary>
         public bool IsBestMatch { get; set; }
+
+        /// <summary>
+        /// Trade state
+        /// </summary>
+        public TradeState TradeState { get; set; }
     }
 }

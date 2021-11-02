@@ -21,10 +21,22 @@
         <tr>
             <td>@(i+1).</td>
             <td>@Model.Coins[i].Coin.Coin</td>
-            <td>@Model.Coins[i].TotalDollarValue @Model.Coins[i].TotalDollarAssetName</td>
+            <td>
+                @Model.Coins[i].TotalDollarValue @Model.Coins[i].TotalDollarAssetName
+                <div class="d-block" style="font-size: 80%;">
+                     <span>TIMELINE</span>
+                     <span class="text-success">@Model.Coins[i].CurrentTimeLineDollarValue @Model.Coins[i].TotalDollarAssetName</span>
+                </div>
+            </td>
             <td>@Model.Coins[i].TotalQuoteValue @Model.Coins[i].TotalQuoteAssetName</td>
             <td>@Model.Coins[i].Coin.Free</td>
-            <td>@Model.Coins[i].Coin.Locked</td>
+            <td>
+
+                @Model.Coins[i].Coin.Locked
+                <div class="d-block" style="font-size: 80%;">
+                    <span class="text-light bg-success">@Math.Round((100*(@Model.Coins[i].Coin.Locked/ (@Model.Coins[i].Coin.Locked + @Model.Coins[i].Coin.Free))), 2)%</span>    
+                </div>
+            </td>
             <td>@Model.Coins[i].Coin.Name</td>
         </tr>
         }

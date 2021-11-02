@@ -23,6 +23,7 @@ namespace TradingTools.Web.ViewModels
 
         public IList<TradeTimeLineValueViewModel> Trades { get; } = new List<TradeTimeLineValueViewModel>();
 
+        public decimal CurrentPrice { get; set; }
         public decimal AverageBuyPrice { get; private set; }
         public decimal AverageSellPrice { get; private set; }
         public decimal AverageCost { get; private set; }
@@ -38,11 +39,17 @@ namespace TradingTools.Web.ViewModels
                 int decimalPlaces = 8;
                 if (TradeGroup.SymbolInfo != null)
                 {
-                    decimalPlaces = TradeGroup.SymbolInfo.QuoteAsset == "USDT" ? 2 : 8;
+                    decimalPlaces = GetDecimalPlaces(TradeGroup.SymbolInfo.QuoteAsset);
                 }
                 return $"{decimal.Round(GainQuoteAsset, decimalPlaces)}{TradeGroup.SymbolInfo?.QuoteAsset}";
             }
         }
+
+        public int GetDecimalPlaces(string asset)
+        {
+            return asset == "USDT" ? 2 : 8;
+        }
+
         public decimal RemaingPositionPercentage { get; private set; }
         public string RemaingPositionPercentageString => $"{decimal.Round(RemaingPositionPercentage * 100, 2)}%";
 
@@ -78,29 +85,32 @@ namespace TradingTools.Web.ViewModels
                     }
                     vmTrade.CurrentBaseAssetQuantity = lastCurrentValue;
 
-                    if (vmTrade.Trade.T2SymbolInfo.QuoteAsset == "USDT")
+                    if (vmTrade.Trade.T2SymbolInfo != null)
                     {
-                        if (vmTrade.Trade.IsBuyer)
+                        if (vmTrade.Trade.T2SymbolInfo.QuoteAsset == "USDT")
                         {
-                            lastUsdtQuoteValue += vmTrade.Trade.QuoteQuantity;
+                            if (vmTrade.Trade.IsBuyer)
+                            {
+                                lastUsdtQuoteValue += vmTrade.Trade.QuoteQuantity;
+                            }
+                            else
+                            {
+                                lastUsdtQuoteValue -= vmTrade.Trade.QuoteQuantity;
+                            }
+                            vmTrade.CurrentQuoteAssetQuantity = lastUsdtQuoteValue;
                         }
-                        else
+                        else if (vmTrade.Trade.T2SymbolInfo.QuoteAsset == "BTC")
                         {
-                            lastUsdtQuoteValue -= vmTrade.Trade.QuoteQuantity;
+                            if (vmTrade.Trade.IsBuyer)
+                            {
+                                lastBtcQuoteValue += vmTrade.Trade.QuoteQuantity;
+                            }
+                            else
+                            {
+                                lastBtcQuoteValue -= vmTrade.Trade.QuoteQuantity;
+                            }
+                            vmTrade.CurrentQuoteAssetQuantity = lastBtcQuoteValue;
                         }
-                        vmTrade.CurrentQuoteAssetQuantity = lastUsdtQuoteValue;
-                    }
-                    else if (vmTrade.Trade.T2SymbolInfo.QuoteAsset == "BTC")
-                    {
-                        if (vmTrade.Trade.IsBuyer)
-                        {
-                            lastBtcQuoteValue += vmTrade.Trade.QuoteQuantity;
-                        }
-                        else
-                        {
-                            lastBtcQuoteValue -= vmTrade.Trade.QuoteQuantity;
-                        }
-                        vmTrade.CurrentQuoteAssetQuantity = lastBtcQuoteValue;
                     }
 
 

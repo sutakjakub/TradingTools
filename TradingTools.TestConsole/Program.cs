@@ -120,7 +120,7 @@ namespace TradingTools.TestConsole
 
             foreach (var symbol in dbSymbols)
             {
-                await Task.Delay(300);
+                await Task.Delay(200);
                 var lastEntity = await db.T2Trades.Where(p => p.Symbol == symbol.Symbol).OrderByDescending(o => o.TradeId).FirstOrDefaultAsync();
                 var trades = await exchange.GetTradesAsync(symbol.Symbol, lastEntity?.TradeId);
                 Log.Information($"{symbol.Symbol} __ {trades.Count()} ___ {lastEntity?.TradeId}");

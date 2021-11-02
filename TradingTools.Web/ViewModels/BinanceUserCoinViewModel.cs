@@ -21,6 +21,8 @@ namespace TradingTools.Web.ViewModels
         public decimal TotalQuoteValue { get; private set; }
         public string TotalQuoteAssetName { get; private set; }
 
+        public decimal CurrentTimeLineDollarValue { get; set; }
+
         public void Init(BinanceUserCoinDto coinDto, ExchangePriceDto priceDto, T2SymbolInfoEntity symbolInfo, decimal priceBtcUsdt)
         {
             Coin = coinDto;

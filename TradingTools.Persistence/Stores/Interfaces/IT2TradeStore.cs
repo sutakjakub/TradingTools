@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TradingTools.Db.Entities;
+using TradingTools.Db.Enums;
 
 namespace TradingTools.Persistence.Stores.Interfaces
 {
@@ -12,5 +13,6 @@ namespace TradingTools.Persistence.Stores.Interfaces
         Task<T2TradeEntity> Update(T2TradeEntity trade);
         Task<T2TradeEntity> Create(T2TradeEntity trade);
         Task MoveTo(IEnumerable<long> tradeIds, long tradeGroupId);
+        Task SetState(IEnumerable<long> tradeIds, TradeState state);
     }
 }

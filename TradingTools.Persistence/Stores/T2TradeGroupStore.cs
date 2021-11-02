@@ -25,5 +25,13 @@ namespace TradingTools.Persistence.Stores
 
             return tradeGroup;
         }
+
+        public async Task<T2TradeGroupEntity> Update(T2TradeGroupEntity tradeGroup)
+        {
+            _context.T2TradeGroups.Update(tradeGroup);
+            await _context.SaveChangesAsync();
+
+            return tradeGroup;
+        }
     }
 }

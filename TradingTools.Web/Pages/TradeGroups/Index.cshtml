@@ -9,32 +9,32 @@
     <table class="table table-hover">
         <thead>
             <tr>
+                <th>Symbol</th>
                 <th>Name</th>
                 <th>Created</th>
-                <th>Symbol</th>
-                <th>Gain/Loss</th>
-                <th>Trades count</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var group in Model.TradeGroups)
             {
-            <tr style="opacity: @(group.TradeGroup.IsDefault ? 0.3 : 1)">
-                <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
-                <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm")</td>
-                <td>@(group.TradeGroup.SymbolInfo != null ? group.TradeGroup.SymbolInfo.Symbol : group.TradeGroup.BaseAsset)</td>
+            <tr style="opacity: @(group.TradeGroup.IsDefault ? 0.3 : 1);">
                 <td>
-                    @if (group.Gain >= 0)
-                    {
-                    <span class="bg-success text-light pl-2 pr-2">@group.GainString</span>
-                    }
-                    else
-                    {
-                <span class="bg-danger text-light pl-2 pr-2">@group.GainString</span>
-                    }
-
+                    @(group.TradeGroup.SymbolInfo != null ? group.TradeGroup.SymbolInfo.Symbol : group.TradeGroup.BaseAsset)
+                    <div class="d-block">
+                        <span class="round border border-secondary pl-2 pr-2 small">
+                            @group.TradeGroup.TradeGroupState&nbsp;|&nbsp;@group.TradeGroup.Trades.Count trades&nbsp;|&nbsp;@if (group.Gain >= 0)
+                            {
+                                <span class="bg-success text-light pl-2 pr-2">@group.GainString</span>
+                            }
+                            else
+                            {
+                                <span class="bg-danger text-light pl-2 pr-2">@group.GainString</span>
+                            }
+                        </span>
+                    </div>
                 </td>
-                <td>@group.TradeGroup.Trades.Count</td>
+                <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
+                <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm") @(Math.Round((@DateTime.Now - group.TradeGroup.Created).TotalDays))(days ago) </td>
             </tr>
             }
         </tbody>

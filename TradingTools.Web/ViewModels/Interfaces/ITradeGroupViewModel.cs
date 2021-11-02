@@ -8,6 +8,7 @@ namespace TradingTools.Web.ViewModels.Interfaces
 {
     public interface ITradeGroupViewModel
     {
+        decimal CurrentPrice { get; set; }
         decimal AverageBuyPrice { get; }
         decimal AverageCost { get; }
         decimal AverageSellPrice { get; }
@@ -22,6 +23,8 @@ namespace TradingTools.Web.ViewModels.Interfaces
         T2TradeGroupEntity TradeGroup { get; set; }
         IList<TradeTimeLineValueViewModel> Trades { get; }
 
+
+        int GetDecimalPlaces(string asset);
         void Init(T2TradeGroupEntity tradeGroup);
     }
 }

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TradingTools.Db;
 using TradingTools.Db.Entities;
+using TradingTools.Db.Enums;
 using TradingTools.Persistence.Stores.Interfaces;
 
 namespace TradingTools.Persistence.Stores
@@ -42,6 +43,17 @@ namespace TradingTools.Persistence.Stores
             foreach (var item in trades)
             {
                 item.T2TradeGroupId = tradeGroupId;
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SetState(IEnumerable<long> tradeIds, TradeState state)
+        {
+            var trades = await _context.T2Trades
+                .Where(p => tradeIds.Contains(p.Id)).ToListAsync();
+            foreach (var item in trades)
+            {
+                item.TradeState = state;
             }
             await _context.SaveChangesAsync();
         }
