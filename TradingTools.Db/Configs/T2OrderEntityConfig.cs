@@ -36,6 +36,12 @@ namespace TradingTools.Db.Configs
                .HasPrecision(18, 8);
             builder.Property(p => p.AverageFillPrice)
                .HasPrecision(18, 8);
+
+            builder
+                .HasOne(p => p.T2TradeGroup)
+                .WithMany(s => s.Orders)
+                .HasForeignKey(p => p.T2TradeGroupId)
+                .IsRequired(false);
         }
     }
 }

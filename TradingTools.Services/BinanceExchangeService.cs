@@ -59,8 +59,13 @@ namespace TradingTools.ExchangeServices
             {
                 return null;
             }
+            
+            return ConvertTo(order);
+        }
 
-            var orderDto = new T2OrderDto
+        private static T2OrderDto ConvertTo(BinanceOrder order)
+        {
+            return new T2OrderDto
             {
                 AverageFillPrice = order.AverageFillPrice,
                 ClientOrderId = order.ClientOrderId,
@@ -83,9 +88,33 @@ namespace TradingTools.ExchangeServices
                 Type = ConvertTo(order.Type),
                 UpdateTime = order.UpdateTime
             };
-
-            return orderDto;
         }
+
+        public async Task<IEnumerable<T2OrderDto>> GetOpenOrders(string symbol = null)
+        {
+            var openOrders = await _client.Spot.Order.GetOpenOrdersAsync(symbol);
+
+            var result = new List<T2OrderDto>();
+            foreach (var item in openOrders?.Data)
+            {
+                result.Add(ConvertTo(item));
+            }
+
+            return result;
+        }
+
+        //public async Task<IEnumerable<T2OrderDto>> GetOpenOcoOrders()
+        //{
+        //    var openOcoOrders = await _client.Spot.Order.GetOpenOcoOrdersAsync();
+
+        //    var result = new List<T2OrderDto>();
+        //    foreach (var oco in openOcoOrders?.Data)
+        //    {
+        //        result.Add(ConvertTo(oco.));
+        //    }
+
+        //    return result;
+        //}
 
         private static T2OrderType ConvertTo(OrderType type)
         {

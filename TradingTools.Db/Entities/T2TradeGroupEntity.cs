@@ -51,5 +51,10 @@ namespace TradingTools.Db.Entities
         /// Trade state
         /// </summary>
         public TradeGroupState TradeGroupState { get; set; }
+
+        /// <summary>
+        /// The open T2Order entities
+        /// </summary>
+        public ICollection<T2OrderEntity> Orders { get; set; }
     }
 }

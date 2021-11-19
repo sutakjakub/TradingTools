@@ -22,7 +22,8 @@ namespace TradingTools.Web.ViewModels.Interfaces
         decimal SellQuantity { get; }
         T2TradeGroupEntity TradeGroup { get; set; }
         IList<TradeTimeLineValueViewModel> Trades { get; }
-
+        decimal ClosestProfit { get; }
+        string ClosestProfitString { get; }
 
         int GetDecimalPlaces(string asset);
         void Init(T2TradeGroupEntity tradeGroup);

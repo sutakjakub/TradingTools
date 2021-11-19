@@ -23,14 +23,14 @@
     <tbody>
         @foreach (var trade in Model.Trades)
         {
-        <tr>
-            <td>@trade.TradeTime</td>
-            <td>@trade.Symbol</td>
-            <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
-            <td>@trade.Quantity</td>
-            <td>@trade.QuoteQuantity</td>
-            <td>@trade.Commission @trade.CommissionAsset</td>
-        </tr>
+            <tr>
+                <td>@trade.TradeTime</td>
+                <td>@trade.Symbol</td>
+                <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
+                <td>@trade.Quantity</td>
+                <td>@trade.QuoteQuantity</td>
+                <td>@trade.Commission @trade.CommissionAsset</td>
+            </tr>
         }
     </tbody>
 </table>

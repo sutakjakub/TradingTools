@@ -116,6 +116,7 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
             if (!string.IsNullOrWhiteSpace(symbol))
             {
                 _ = await _synchronizator.SyncBySymbol(symbol);
+                await _synchronizator.SyncOpenOrdersBySymbol(symbol);
             }
             else
             {

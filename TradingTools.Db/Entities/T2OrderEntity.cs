@@ -24,6 +24,15 @@ namespace TradingTools.Db.Entities
         /// </summary>
         public T2SymbolInfoEntity T2SymbolInfo { get; set; }
 
+        /// <summary>
+        /// The identifier for trade.
+        /// </summary>
+        public long? T2TradeGroupId { get; set; }
+        /// <summary>
+        /// T2TradeEntity entity
+        /// </summary>
+        public T2TradeGroupEntity T2TradeGroup { get; set; }
+
 
         /// <summary>
         /// Is working

@@ -26,7 +26,8 @@ namespace TradingTools.Web.Pages.Trades
 
         public async Task OnGet()
         {
-            Trades = await _tradeQuery.All();
+            var trades = await _tradeQuery.All();
+            Trades = trades.OrderByDescending(o => o.TradeTime);
         }
     }
 }

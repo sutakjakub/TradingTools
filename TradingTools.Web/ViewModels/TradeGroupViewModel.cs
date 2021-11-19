@@ -53,6 +53,22 @@ namespace TradingTools.Web.ViewModels
         public decimal RemaingPositionPercentage { get; private set; }
         public string RemaingPositionPercentageString => $"{decimal.Round(RemaingPositionPercentage * 100, 2)}%";
 
+        public decimal ClosestProfit
+        {
+            get
+            {
+                if (TradeGroup.Orders?.Any() == true && CurrentPrice > 0)
+                {
+                    var minPrice = TradeGroup.Orders.Min(o => o.Price);
+                    return Math.Round((100 * CurrentPrice / minPrice) - 100, 2);
+                }
+
+                return 0;
+            }
+        }
+
+        public string ClosestProfitString => $"{ClosestProfit}%";
+
         public void Init(T2TradeGroupEntity tradeGroup)
         {
             TradeGroup = tradeGroup;

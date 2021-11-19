@@ -24,6 +24,8 @@ using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.Persistence;
 using TradingTools.Persistence.Queries;
 using TradingTools.Persistence.Queries.Interfaces;
+using TradingTools.Web.Hubs;
+using TradingTools.Web.Jobs;
 using TradingTools.Web.ViewModels;
 using TradingTools.Web.ViewModels.Interfaces;
 
@@ -55,12 +57,16 @@ namespace TradingTools.Web
                 };
                 return new BinanceClient(options);
             });
-            services.AddScoped<IBinanceExchangeService, BinanceExchangeService>();
-            services.AddScoped<IT2Synchronizator, T2Synchronizator>();
-            services.AddScoped<ITradeGroupStatisticsBusiness, TradeGroupStatisticsBusiness>();
+
+            services.AddTransient<ScopeData>();
+            services.AddTransient<IBinanceExchangeService, BinanceExchangeService>();
+            services.AddTransient<IT2Synchronizator, T2Synchronizator>();
+            services.AddTransient<ITradeGroupStatisticsBusiness, TradeGroupStatisticsBusiness>();
             services.AddTransient<ITradeGroupViewModel, TradeGroupViewModel>();
+            services.AddHostedService<SyncProcessorJob>();
 
             services.AddRazorPages();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,6 +93,7 @@ namespace TradingTools.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHub<SynchronizationInfoHub>("/syncInfoHub");
             });
         }
     }

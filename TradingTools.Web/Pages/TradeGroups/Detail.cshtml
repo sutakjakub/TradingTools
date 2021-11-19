@@ -90,6 +90,26 @@
             </tr>
         </tbody>
     </table>
+    <h3>Open orders</h3>
+    <table class="table table-hover small summary">
+        <thead>
+            <tr>
+                <th>Remaining %</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.ViewModel.TradeGroup.Orders)
+            {
+                <tr>
+                    <td>@(Math.Round((100 * Model.ViewModel.CurrentPrice / order.Price) - 100, 2))%</td>
+                    <td>@order.Price @order.T2SymbolInfo.QuoteAsset</td>
+                    <td>@order.Quantity @order.T2SymbolInfo.BaseAsset</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 
 <form method="post">

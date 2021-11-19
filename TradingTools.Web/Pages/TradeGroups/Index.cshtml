@@ -32,6 +32,7 @@
                             }
                         </span>
                     </div>
+                    <span class="bg-primary text-light round border border-secondary small pl-2 pr-2">Next profit remaining: @group.ClosestProfitString</span>
                 </td>
                 <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
                 <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm") @(Math.Round((@DateTime.Now - group.TradeGroup.Created).TotalDays))(days ago) </td>

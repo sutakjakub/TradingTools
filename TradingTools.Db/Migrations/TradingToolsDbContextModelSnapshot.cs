@@ -94,6 +94,9 @@ namespace TradingTools.Db.Migrations
                     b.Property<long>("T2SymbolInfoId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("T2TradeGroupId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("TimeInForce")
                         .HasColumnType("int");
 
@@ -115,6 +118,8 @@ namespace TradingTools.Db.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("T2SymbolInfoId");
+
+                    b.HasIndex("T2TradeGroupId");
 
                     b.ToTable("T2Orders");
                 });
@@ -168,6 +173,42 @@ namespace TradingTools.Db.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("T2SymbolInfos");
+                });
+
+            modelBuilder.Entity("TradingTools.Db.Entities.T2SyncEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("T2SyncEntity_ID")
+                        .HasComment("PK, Identity")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset(2)")
+                        .HasComment("Represents UTC date time of entity creation");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset>("Updated")
+                        .HasColumnType("datetimeoffset(2)")
+                        .HasComment("Represents UTC date time of latest entity version");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("T2Syncs");
                 });
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2TradeEntity", b =>
@@ -323,7 +364,13 @@ namespace TradingTools.Db.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TradingTools.Db.Entities.T2TradeGroupEntity", "T2TradeGroup")
+                        .WithMany("T2Orders")
+                        .HasForeignKey("T2TradeGroupId");
+
                     b.Navigation("T2SymbolInfo");
+
+                    b.Navigation("T2TradeGroup");
                 });
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2TradeEntity", b =>
@@ -358,6 +405,8 @@ namespace TradingTools.Db.Migrations
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2TradeGroupEntity", b =>
                 {
+                    b.Navigation("T2Orders");
+
                     b.Navigation("Trades");
                 });
 #pragma warning restore 612, 618

@@ -15,12 +15,16 @@ namespace TradingTools.Persistence
     {
         public static void RegisterEverything(IServiceCollection services)
         {
-            services.AddScoped<IT2TradeQuery, T2TradeQuery>();
-            services.AddScoped<IT2TradeGroupQuery, T2TradeGroupQuery>();
-            services.AddScoped<IT2SymbolInfoQuery, T2SymbolInfoQuery>();
+            services.AddTransient<IT2TradeQuery, T2TradeQuery>();
+            services.AddTransient<IT2TradeGroupQuery, T2TradeGroupQuery>();
+            services.AddTransient<IT2SymbolInfoQuery, T2SymbolInfoQuery>();
+            services.AddTransient<IT2SyncQuery, T2SyncQuery>();
+            services.AddTransient<IT2OrderQuery, T2OrderQuery>();
 
-            services.AddScoped<IT2TradeGroupStore, T2TradeGroupStore>();
-            services.AddScoped<IT2TradeStore, T2TradeStore>();
+            services.AddTransient<IT2TradeGroupStore, T2TradeGroupStore>();
+            services.AddTransient<IT2TradeStore, T2TradeStore>();
+            services.AddTransient<IT2SyncStore, T2SyncStore>();
+            services.AddTransient<IT2OrderStore, T2OrderStore>();
         }
     }
 }

@@ -23,6 +23,7 @@ namespace TradingTools.Persistence.Queries
             return await _context.T2TradeGroups
                 .Include(group => group.SymbolInfo)
                 .Include(group => group.Trades)
+                .Include(group => group.Orders)
                 .ThenInclude(trade => trade.T2SymbolInfo)
                 .ToListAsync();
         }
@@ -33,6 +34,7 @@ namespace TradingTools.Persistence.Queries
                 .Include(i => i.SymbolInfo)
                 .Include(i => i.Trades)
                 .Include(i => i.Trades.OrderBy(o => o.TradeTime))
+                .Include(group => group.Orders)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
 
@@ -42,6 +44,7 @@ namespace TradingTools.Persistence.Queries
                 .Where(p => p.BaseAsset == baseAsset)
                 .Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
+                .Include(group => group.Orders)
                 .ToListAsync();
         }
 
@@ -50,6 +53,7 @@ namespace TradingTools.Persistence.Queries
             return await _context.T2TradeGroups
                 .Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
+                .Include(group => group.Orders)
                 .Where(p => p.SymbolInfo.Symbol == symbol)
                 .ToListAsync();
         }
@@ -59,6 +63,7 @@ namespace TradingTools.Persistence.Queries
             return await _context.T2TradeGroups
                 .Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
+                .Include(group => group.Orders)
                 .Where(p => p.BaseAsset == baseAsset && p.Name == $"Default_{baseAsset}")
                 .FirstOrDefaultAsync();
         }
@@ -68,6 +73,7 @@ namespace TradingTools.Persistence.Queries
             return await _context.T2TradeGroups
                 .Include(group => group.Trades)
                 .Include(group => group.SymbolInfo)
+                .Include(group => group.Orders)
                 .OrderByDescending(o => o.Created)
                 .FirstOrDefaultAsync(p => p.SymbolInfo.Symbol == symbol);
         }

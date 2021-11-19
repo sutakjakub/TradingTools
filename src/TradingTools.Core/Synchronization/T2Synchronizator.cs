@@ -24,6 +24,9 @@ namespace TradingTools.Core.Synchronization
         private readonly IT2TradeQuery _tradeQuery;
         private readonly IT2TradeStore _tradeStore;
         private readonly IT2TradeGroupQuery _tradeGroupQuery;
+        private readonly IT2TradeGroupStore _tradeGroupStore;
+        private readonly IT2OrderQuery _orderQuery;
+        private readonly IT2OrderStore _orderStore;
         private readonly IBinanceExchangeService _exchangeService;
 
         public T2Synchronizator(
@@ -32,6 +35,9 @@ namespace TradingTools.Core.Synchronization
             IT2TradeQuery tradeQuery,
             IT2TradeStore tradeStore,
             IT2TradeGroupQuery tradeGroupQuery,
+            IT2TradeGroupStore tradeGroupStore,
+            IT2OrderQuery orderQuery,
+            IT2OrderStore orderStore,
             IBinanceExchangeService exchangeService)
         {
             _logger = logger;
@@ -39,6 +45,9 @@ namespace TradingTools.Core.Synchronization
             _tradeQuery = tradeQuery;
             _tradeStore = tradeStore;
             _tradeGroupQuery = tradeGroupQuery;
+            _tradeGroupStore = tradeGroupStore;
+            _orderQuery = orderQuery;
+            _orderStore = orderStore;
             _exchangeService = exchangeService;
         }
 
@@ -61,6 +70,17 @@ namespace TradingTools.Core.Synchronization
                     {
                         tradeGroup = await _tradeGroupQuery.FindDefaultByBaseAsset(symbolInfo.BaseAsset);
                     }
+
+                    if (tradeGroup == null)
+                    {
+                        tradeGroup = new T2TradeGroupEntity
+                        {
+                            BaseAsset = symbolInfo.BaseAsset,
+                            Name = $"Default_{symbolInfo.BaseAsset}"
+                        };
+                        tradeGroup = await _tradeGroupStore.Create(tradeGroup);
+                    }
+
                     item.T2TradeGroupId = tradeGroup.Id;
                     var created = await _tradeStore.Create(item);
                     createdIds.Add(created.Id);
@@ -81,6 +101,78 @@ namespace TradingTools.Core.Synchronization
             }
 
             return createdIds;
+        }
+
+        public async Task SyncOpenOrdersBySymbol(string symbol = null, IEnumerable<T2OrderDto> openOrders = null)
+        {
+            if (openOrders == null)
+            {
+                openOrders = await _exchangeService.GetOpenOrders(symbol);
+            }
+            foreach (var orderDto in openOrders)
+            {
+                var order = await _orderQuery.FindByOrderId(orderDto.OrderId);
+                if (order == null)
+                {
+                    try
+                    {
+                        order = ConvertToOrder(orderDto);
+                        var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(order.Symbol);
+                        var symbolInfo = await _symbolInfoQuery.FindByName(order.Symbol);
+                        order.T2TradeGroupId = tradeGroup?.Id;
+                        order.T2SymbolInfoId = symbolInfo.Id;
+
+                        await _orderStore.Create(order);
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
+                }
+            }
+
+            IEnumerable<T2OrderEntity> allOrders;
+            if (symbol == null)
+            {
+                allOrders = await _orderQuery.All();
+            }
+            else
+            {
+                allOrders = await _orderQuery.FindBySymbol(symbol);
+            }
+
+            var ordersIds = openOrders.Select(s => s.OrderId);
+            var deleteCandidatesIds = allOrders.Where(p => !ordersIds.Contains(p.OrderId)).Select(o => o.Id).ToArray();
+
+            await _orderStore.Delete(deleteCandidatesIds);
+
+        }
+
+        private T2OrderEntity ConvertToOrder(T2OrderDto order)
+        {
+            return new T2OrderEntity
+            {
+                AverageFillPrice = order.AverageFillPrice,
+                ClientOrderId = order.ClientOrderId,
+                OrderId = order.OrderId,
+                CreateTime = order.CreateTime,
+                IsWorking = order.IsWorking,
+                OrderListId = order.OrderListId,
+                OriginalClientOrderId = order.OriginalClientOrderId,
+                Price = order.Price,
+                Quantity = order.Quantity,
+                QuantityFilled = order.QuantityFilled,
+                QuantityRemaining = order.QuantityRemaining,
+                QuoteQuantity = order.QuoteQuantity,
+                QuoteQuantityFilled = order.QuoteQuantityFilled,
+                Side = order.Side,
+                Status = order.Status,
+                StopPrice = order.StopPrice,
+                Symbol = order.Symbol,
+                TimeInForce = order.TimeInForce,
+                Type = order.Type,
+                UpdateTime = order.UpdateTime
+            };
         }
 
         private static IEnumerable<T2TradeEntity> ConvertToTrades(IEnumerable<T2TradeDto> trades, long symbolId)

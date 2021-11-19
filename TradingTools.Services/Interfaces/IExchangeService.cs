@@ -16,5 +16,6 @@ namespace TradingTools.ExchangeServices.Interfaces
         Task<decimal> GetPriceAsync(string symbol);
         Task<IEnumerable<ExchangePriceDto>> GetPricesAsync();
         Task<IEnumerable<BinanceUserCoinDto>> GetUserCoinsAsync();
+        Task<IEnumerable<T2OrderDto>> GetOpenOrders(string symbol = null);
     }
 }

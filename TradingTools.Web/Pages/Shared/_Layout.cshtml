@@ -36,6 +36,11 @@
                     </ul>
                 </div>
             </div>
+            <span class="navbar-text">
+                <input class="btn btn-success d-inline" type="button" id="sendButton" value="Sync" />
+                <span id="sync-info-text" class="d-block small">abcd</span>
+                <span id="sync-info-text-symbol" class="small">efg</span>
+            </span>
         </nav>
     </header>
     <div class="container">
@@ -53,6 +58,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/syncInfo.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
