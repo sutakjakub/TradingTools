@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -58,6 +60,28 @@ namespace TradingTools.Web.Pages.TradeGroups
                 .OrderBy(o => o.TradeGroup.IsDefault)
                 .ThenByDescending(o => o.TradeGroup.TradeGroupState != Db.Enums.TradeGroupState.Done)
                 .ThenByDescending(o => o.TradeGroup.Created).ToList();
+        }
+
+        public async Task<IActionResult> OnGetDownloadTradingViewList()
+        {
+            var groups = await _tradeGroupQuery.All();
+            var filtered = groups.Where(p => !p.IsDefault && p.TradeGroupState == Db.Enums.TradeGroupState.InProgress).ToList();
+            StringBuilder sb = new();
+            var count = filtered.Count;
+            for (int i = 0; i < count; i++)
+            {
+                sb.Append($"BINANCE:{filtered[i].SymbolInfo.Symbol}");
+                if (i < count - 1)
+                {
+                    sb.Append(',');
+                }
+            }
+
+            // convert string to stream
+            byte[] byteArray = Encoding.ASCII.GetBytes(sb.ToString());
+            MemoryStream stream = new(byteArray);
+
+            return File(stream, "application/octet-stream"); // returns a FileStreamResult
         }
     }
 }
