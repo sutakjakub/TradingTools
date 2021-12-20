@@ -3,57 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingTools.Db;
 
 namespace TradingTools.Db.Migrations
 {
     [DbContext(typeof(TradingToolsDbContext))]
-    partial class TradingToolsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211123200535_added_portfolio_coin")]
+    partial class added_portfolio_coin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("TradingTools.Db.Entities.T2NotificationEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("T2NotificationEntity_ID")
-                        .HasComment("PK, Identity")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset(2)")
-                        .HasComment("Represents UTC date time of entity creation");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NotificationType")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<DateTimeOffset>("Updated")
-                        .HasColumnType("datetimeoffset(2)")
-                        .HasComment("Represents UTC date time of latest entity version");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("T2Notifications");
-                });
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2OrderEntity", b =>
                 {
@@ -202,7 +168,7 @@ namespace TradingTools.Db.Migrations
 
                     b.HasIndex("T2SyncId");
 
-                    b.ToTable("T2PortfolioCoins");
+                    b.ToTable("T2PortfolioCoinEntity");
                 });
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2SymbolInfoEntity", b =>

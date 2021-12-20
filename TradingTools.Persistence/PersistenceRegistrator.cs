@@ -25,6 +25,9 @@ namespace TradingTools.Persistence
             services.AddTransient<IT2TradeStore, T2TradeStore>();
             services.AddTransient<IT2SyncStore, T2SyncStore>();
             services.AddTransient<IT2OrderStore, T2OrderStore>();
+
+            services.AddTransient<IT2PortfolioCoinStore, T2PortfolioCoinStore>();
+            services.AddTransient<IT2NotificationStore, T2NotificationStore>();
         }
     }
 }

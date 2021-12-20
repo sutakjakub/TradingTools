@@ -21,8 +21,9 @@ namespace TradingTools.Db
         public DbSet<T2SymbolInfoEntity> T2SymbolInfos { get; set; }
         public DbSet<T2TradeEntity> T2Trades { get; set; }
         public DbSet<T2TradeGroupEntity> T2TradeGroups { get; set; }
-
         public DbSet<T2SyncEntity> T2Syncs { get; set; }
+        public DbSet<T2PortfolioCoinEntity> T2PortfolioCoins { get; set; }
+        public DbSet<T2NotificationEntity> T2Notifications { get; set; }
 
         public override int SaveChanges()
         {

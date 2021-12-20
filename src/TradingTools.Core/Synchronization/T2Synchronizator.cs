@@ -27,6 +27,9 @@ namespace TradingTools.Core.Synchronization
         private readonly IT2TradeGroupStore _tradeGroupStore;
         private readonly IT2OrderQuery _orderQuery;
         private readonly IT2OrderStore _orderStore;
+        private readonly IT2PortfolioCoinStore _coinStore;
+        private readonly IT2SyncStore _syncStore;
+        private readonly IT2NotificationStore _notificationStore;
         private readonly IBinanceExchangeService _exchangeService;
 
         public T2Synchronizator(
@@ -38,6 +41,9 @@ namespace TradingTools.Core.Synchronization
             IT2TradeGroupStore tradeGroupStore,
             IT2OrderQuery orderQuery,
             IT2OrderStore orderStore,
+            IT2PortfolioCoinStore coinStore,
+            IT2SyncStore syncStore,
+            IT2NotificationStore notificationStore,
             IBinanceExchangeService exchangeService)
         {
             _logger = logger;
@@ -48,6 +54,9 @@ namespace TradingTools.Core.Synchronization
             _tradeGroupStore = tradeGroupStore;
             _orderQuery = orderQuery;
             _orderStore = orderStore;
+            _coinStore = coinStore;
+            _syncStore = syncStore;
+            _notificationStore = notificationStore;
             _exchangeService = exchangeService;
         }
 
@@ -60,30 +69,50 @@ namespace TradingTools.Core.Synchronization
             _logger.LogInformation($"{symbolInfo.Symbol} __ {trades.Count()} ___ {lastEntity?.TradeId}");
 
             List<long> createdIds = new();
-            foreach (var item in ConvertToTrades(trades, symbolInfo.Id))
+            var collection = ConvertToTrades(trades, symbolInfo.Id);
+            if (collection.Any())
             {
-                var exist = await _tradeQuery.FindByTradeId(item.TradeId);
-                if (exist == null)
+                await _notificationStore.Create(new T2NotificationEntity
                 {
-                    var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(symbol);
-                    if (tradeGroup == null)
+                    NotificationType = Db.Enums.NotificationType.LogOnly,
+                    Message = $"Found {collection.Count()} for {symbol}"
+                });
+                foreach (var item in collection)
+                {
+                    var exist = await _tradeQuery.FindByTradeId(item.TradeId);
+                    if (exist == null)
                     {
-                        tradeGroup = await _tradeGroupQuery.FindDefaultByBaseAsset(symbolInfo.BaseAsset);
-                    }
-
-                    if (tradeGroup == null)
-                    {
-                        tradeGroup = new T2TradeGroupEntity
+                        var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(symbol);
+                        if (tradeGroup == null)
                         {
-                            BaseAsset = symbolInfo.BaseAsset,
-                            Name = $"Default_{symbolInfo.BaseAsset}"
-                        };
-                        tradeGroup = await _tradeGroupStore.Create(tradeGroup);
-                    }
+                            tradeGroup = await _tradeGroupQuery.FindDefaultByBaseAsset(symbolInfo.BaseAsset);
+                        }
 
-                    item.T2TradeGroupId = tradeGroup.Id;
-                    var created = await _tradeStore.Create(item);
-                    createdIds.Add(created.Id);
+                        if (tradeGroup == null)
+                        {
+                            tradeGroup = new T2TradeGroupEntity
+                            {
+                                BaseAsset = symbolInfo.BaseAsset,
+                                Name = $"Default_{symbolInfo.BaseAsset}"
+                            };
+                            tradeGroup = await _tradeGroupStore.Create(tradeGroup);
+                            await _notificationStore.Create(new T2NotificationEntity
+                            {
+                                NotificationType = Db.Enums.NotificationType.MustDo,
+                                Message = $"Created {tradeGroup.Name}. You must create TradeGroup with symbol {symbol} and assing these trades to it."
+                            });
+                        }
+
+                        item.T2TradeGroupId = tradeGroup.Id;
+                        var created = await _tradeStore.Create(item);
+                        await _notificationStore.Create(new T2NotificationEntity
+                        {
+                            NotificationType = Db.Enums.NotificationType.ForCheck,
+                            Message = $"Added trade with T2TradeId={created.T2TradeId} to TradeGroup with Name={tradeGroup.Name}"
+                        });
+
+                        createdIds.Add(created.Id);
+                    }
                 }
             }
 
@@ -123,10 +152,15 @@ namespace TradingTools.Core.Synchronization
                         order.T2SymbolInfoId = symbolInfo.Id;
 
                         await _orderStore.Create(order);
+                        await _notificationStore.Create(new T2NotificationEntity
+                        {
+                            NotificationType = Db.Enums.NotificationType.ForCheck,
+                            Message = $"Assing new OpenOrder: TradeGroupName={tradeGroup?.Name} | {symbolInfo.Symbol} | {order.Side} | {order.Price}{symbolInfo.QuoteAsset} | {order.Quantity}{symbolInfo.BaseAsset}"
+                        });
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
             }
@@ -145,7 +179,84 @@ namespace TradingTools.Core.Synchronization
             var deleteCandidatesIds = allOrders.Where(p => !ordersIds.Contains(p.OrderId)).Select(o => o.Id).ToArray();
 
             await _orderStore.Delete(deleteCandidatesIds);
+            await _notificationStore.Create(new T2NotificationEntity
+            {
+                NotificationType = Db.Enums.NotificationType.ForCheck,
+                Message = $"Deleted open orders Count={deleteCandidatesIds.Count()} for symbol={symbol ?? "All"}"
+            });
+        }
 
+        public async Task SyncByPortfolio()
+        {
+            var sync = await _syncStore.Create(new T2SyncEntity { StartDate = DateTime.Now, State = Db.Enums.SyncState.InProgress });
+            var lastPortfolio = await _coinStore.FindLastPortfolio();
+            var currentPortfolio = await _exchangeService.GetUserCoinsAsync();
+
+            foreach (var lastItem in lastPortfolio)
+            {
+                var symbol = lastItem.T2SymbolInfo.Symbol;
+                var currentItem = currentPortfolio.FirstOrDefault(f => f.Coin == symbol);
+                if (currentItem == null)
+                {
+                    _logger.LogWarning($"{symbol} with syncId={lastItem.T2SyncId} was not found in current portfolio.");
+                    continue;
+                }
+
+                var entity = await ConvertToPortfolioCoin(currentItem);
+                entity.T2SyncId = sync.Id;
+
+                await _coinStore.Create(entity);
+
+                var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(symbol);
+                if (tradeGroup == null || tradeGroup.TradeGroupState == Db.Enums.TradeGroupState.Done)
+                {
+                    ////create tradeGroup
+                    //var tradeGroup = new T2TradeGroupEntity
+                    //{
+                    //    Name = symbol,
+                    //    Trades = 
+                    //};
+                }
+                else
+                {
+                    var needUpdate = false;
+                    if (entity.Free != currentItem.Free)
+                    {
+                        //TODO: notification for buy
+                        needUpdate = true;
+                    }
+                    if (entity.Locked != currentItem.Locked)
+                    {
+                        needUpdate = true;
+                        if (entity.Locked < currentItem.Locked)
+                        {
+                            //TODO: notification removing order
+                        }
+                        else if (entity.Locked > currentItem.Locked)
+                        {
+                            //TODO: notification for creating order 
+                        }
+                    }
+                    if (needUpdate)
+                    {
+                        await SyncBySymbol(symbol);
+                        await SyncOpenOrdersBySymbol(symbol);
+                    }
+                }
+                //TODO: notification
+            }
+        }
+
+        private async Task<T2PortfolioCoinEntity> ConvertToPortfolioCoin(BinanceUserCoinDto dto)
+        {
+            var symbolInfo = await _symbolInfoQuery.FindByName(dto.Coin);
+
+            return new T2PortfolioCoinEntity
+            {
+                Free = dto.Free,
+                Locked = dto.Locked,
+                T2SymbolInfoId = symbolInfo.Id
+            };
         }
 
         private T2OrderEntity ConvertToOrder(T2OrderDto order)
@@ -195,5 +306,7 @@ namespace TradingTools.Core.Synchronization
                 T2SymbolInfoId = symbolId
             });
         }
+
+
     }
 }

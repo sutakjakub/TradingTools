@@ -1,0 +1,28 @@
+﻿@page
+@model TradingTools.Web.Pages.Notifications.IndexModel
+@{
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Created</th>
+            <th>Level</th>
+            <th>Message</th>
+            <th>Is Read</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var notif in Model.Notifications)
+        {
+        <tr>
+            <td>@notif.Id</td>
+            <td>@notif.Created.ToString("dd.MM.yyyy hh:mm:ss")</td>
+            <td><span class="round border border-secondary pl-2 pr-2 small">@notif.NotificationType</span></td>
+            <td><span style="font-size: 80%;">@notif.Message</span></td>
+            <td>@notif.IsRead</td>
+        </tr>
+        }
+    </tbody>
+</table>
