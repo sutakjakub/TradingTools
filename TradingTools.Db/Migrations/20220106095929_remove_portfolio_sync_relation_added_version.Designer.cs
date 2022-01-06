@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingTools.Db;
 
 namespace TradingTools.Db.Migrations
 {
     [DbContext(typeof(TradingToolsDbContext))]
-    partial class TradingToolsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220106095929_remove_portfolio_sync_relation_added_version")]
+    partial class remove_portfolio_sync_relation_added_version
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,12 +171,6 @@ namespace TradingTools.Db.Migrations
                         .HasComment("PK, Identity")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Coin")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CoinName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("datetimeoffset(2)")
                         .HasComment("Represents UTC date time of entity creation");
@@ -187,24 +183,13 @@ namespace TradingTools.Db.Migrations
                         .HasPrecision(18, 8)
                         .HasColumnType("decimal(18,8)");
 
+                    b.Property<long>("T2SymbolInfoId")
+                        .HasColumnType("bigint");
+
                     b.Property<byte[]>("Timestamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
-
-                    b.Property<string>("TotalDollarAssetName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalDollarValue")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
-
-                    b.Property<string>("TotalQuoteAssetName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalQuoteValue")
-                        .HasPrecision(18, 8)
-                        .HasColumnType("decimal(18,8)");
 
                     b.Property<DateTimeOffset>("Updated")
                         .HasColumnType("datetimeoffset(2)")
@@ -214,6 +199,8 @@ namespace TradingTools.Db.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("T2SymbolInfoId");
 
                     b.ToTable("T2PortfolioCoins");
                 });
@@ -465,6 +452,17 @@ namespace TradingTools.Db.Migrations
                     b.Navigation("T2SymbolInfo");
 
                     b.Navigation("T2TradeGroup");
+                });
+
+            modelBuilder.Entity("TradingTools.Db.Entities.T2PortfolioCoinEntity", b =>
+                {
+                    b.HasOne("TradingTools.Db.Entities.T2SymbolInfoEntity", "T2SymbolInfo")
+                        .WithMany()
+                        .HasForeignKey("T2SymbolInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("T2SymbolInfo");
                 });
 
             modelBuilder.Entity("TradingTools.Db.Entities.T2TradeEntity", b =>

@@ -32,15 +32,30 @@ namespace TradingTools.Persistence.Stores
             return entity;
         }
 
-        public async Task<IEnumerable<T2PortfolioCoinEntity>> FindBySyncVersion(long syncId)
-        {
-            return await _context.T2PortfolioCoins.Where(p => p.T2SyncId == syncId).ToListAsync();
-        }
-
         public async Task<IEnumerable<T2PortfolioCoinEntity>> FindLastPortfolio()
         {
-            var lastSyncId = await _context.T2PortfolioCoins.MaxAsync(m => m.T2SyncId);
-            return await _context.T2PortfolioCoins.Where(p => p.T2SyncId == lastSyncId).ToListAsync();
+            var lastVersion = await GetLastVersion();
+            if (lastVersion > 0)
+            {
+                return await _context.T2PortfolioCoins.Where(p => p.Version == lastVersion)
+                    .ToListAsync();
+            }
+            else
+            {
+                return new List<T2PortfolioCoinEntity>();
+            }
+        }
+
+        public async Task<int> GetLastVersion()
+        {
+            if (await _context.T2PortfolioCoins.AnyAsync())
+            {
+                return await _context.T2PortfolioCoins.MaxAsync(m => m.Version);
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public async Task<T2PortfolioCoinEntity> Update(T2PortfolioCoinEntity entity)

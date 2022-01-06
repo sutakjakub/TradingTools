@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using TradingTools.Core.Synchronization.Interfaces;
 using TradingTools.Db.Entities;
 using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.Persistence.Queries.Interfaces;
+using TradingTools.Persistence.Stores.Interfaces;
 using TradingTools.Shared.Dto;
 using TradingTools.Web.ViewModels;
 
@@ -18,45 +20,37 @@ namespace TradingTools.Web.Pages.Portfolio
         private readonly ILogger<IndexModel> _logger;
         private readonly IBinanceExchangeService _binance;
         private readonly IT2SymbolInfoQuery _symbolInfoQuery;
+        private readonly IT2Synchronizator _sync;
+        private readonly IT2PortfolioCoinStore _coinStore;
 
         public IndexModel(
             ILogger<IndexModel> logger,
             IBinanceExchangeService binance,
-            IT2SymbolInfoQuery symbolInfoQuery)
+            IT2SymbolInfoQuery symbolInfoQuery,
+            IT2Synchronizator sync,
+            IT2PortfolioCoinStore coinStore)
         {
             _logger = logger;
             _binance = binance;
             _symbolInfoQuery = symbolInfoQuery;
+            _sync = sync;
+            _coinStore = coinStore;
         }
 
         public IList<BinanceUserCoinViewModel> Coins { get; private set; }
 
         public async Task OnGet()
         {
-            var list = await _binance.GetUserCoinsAsync();
-            var prices = await _binance.GetPricesAsync();
-            var btcUsdtPrice = prices.First(f => f.Symbol == "BTCUSDT").Price;
+            var list = await _coinStore.FindLastPortfolio();
+
             List<BinanceUserCoinViewModel> temp = new();
             foreach (var item in list)
             {
-                var vm = new BinanceUserCoinViewModel();
-                var price = prices.FirstOrDefault(f => f.Symbol == item.Coin + "USDT");
-                if (price == null)
-                {
-                    price = prices.FirstOrDefault(f => f.Symbol == item.Coin + "BTC");
-                }
-
-                T2SymbolInfoEntity symbolInfo = null;
-                if (price != null)
-                {
-                    symbolInfo = await _symbolInfoQuery.FindByName(price.Symbol);
-                }
-                vm.Init(item, price, symbolInfo, btcUsdtPrice);
-
+                var vm = new BinanceUserCoinViewModel(item);
                 temp.Add(vm);
             }
 
-            Coins = temp.Where(p => p.TotalDollarValue > 3).OrderByDescending(o => o.TotalDollarValue).ToList();
+            Coins = temp.OrderByDescending(o => o.Coin.TotalDollarValue).ToList();
 
             int initCount = Coins.Count - 1;
 
@@ -64,7 +58,7 @@ namespace TradingTools.Web.Pages.Portfolio
             {
                 if (i + 1 <= initCount)
                 {
-                    Coins[i].CurrentTimeLineDollarValue += Coins[i + 1].CurrentTimeLineDollarValue + Coins[i].TotalDollarValue;
+                    Coins[i].CurrentTimeLineDollarValue += Coins[i + 1].CurrentTimeLineDollarValue + Coins[i].Coin.TotalDollarValue;
                 }
             }
         }

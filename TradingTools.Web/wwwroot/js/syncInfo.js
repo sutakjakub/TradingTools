@@ -3,7 +3,8 @@
 var connection = new signalR.HubConnectionBuilder().withUrl("/syncInfoHub").build();
 
 //Disable send button until connection is established
-document.getElementById("sendButton").disabled = true;
+document.getElementById("startSyncButton").disabled = true;
+document.getElementById("stopSyncButton").disabled = true;
 
 connection.on("ReceiveMessage", function (message, symbol) {
     document.getElementById("sync-info-text").textContent = message;
@@ -14,13 +15,22 @@ connection.on("ReceiveMessage", function (message, symbol) {
 });
 
 connection.start().then(function () {
-    document.getElementById("sendButton").disabled = false;
+    document.getElementById("startSyncButton").disabled = false;
+    document.getElementById("stopSyncButton").disabled = false;
 }).catch(function (err) {
     return console.error(err.toString());
 });
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
+document.getElementById("startSyncButton").addEventListener("click", function (event) {
+    console.log("startSyncButton clicked");
     connection.invoke("StartSync").catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
+
+document.getElementById("stopSyncButton").addEventListener("click", function (event) {
+    connection.invoke("StopSync").catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();

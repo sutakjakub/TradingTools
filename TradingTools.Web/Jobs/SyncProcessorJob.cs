@@ -46,25 +46,37 @@ namespace TradingTools.Web.Jobs
                         syncEntity.State = SyncState.InProgress;
                         syncEntity.StartDate = DateTime.Now;
                         await scopeData.SyncStore.Update(syncEntity);
-
-                        var dbSymbols = await scopeData.SymbolQuery.All();
-                        var items = dbSymbols.Where(p => p.QuoteAsset == "BTC" || p.QuoteAsset == "USDT").OrderBy(o => o.BaseAsset).ToList();
-                        var i = 1;
-                        foreach (var item in items)
+                        try
                         {
-                            try
+                            //sync portfolio
+                            await scopeData.Synchronizator.SyncPortfolio();
+                            //get lastr portfolio
+                            var portfolio = await scopeData.Portfolio.FindLastPortfolio();
+                            //get coins - base assets
+                            var portfolioBaseAssets = portfolio.Select(s => s.Coin).ToList();
+                            var dbSymbols = await scopeData.SymbolQuery.All();
+
+                            var allBtcUsdtSymbols =
+                               dbSymbols.Where(p => p.QuoteAsset == "BTC" || p.QuoteAsset == "USDT").OrderBy(o => o.BaseAsset).Select(s => s.Symbol).ToList();
+                            var items = FilterSymbols(portfolioBaseAssets, allBtcUsdtSymbols);
+                            
+                            int count = items.Count();
+                            var i = 1;
+                            foreach (var symbol in items)
                             {
+
                                 await Task.Delay(300);
-                                _ = await scopeData.Synchronizator.SyncBySymbol(item.Symbol);
+                                _ = await scopeData.Synchronizator.SyncBySymbol(symbol);
 
-                                var percentage = $"{Math.Round((decimal)(100 * i / items.Count), 2)}%";
-                                await scopeData.Hub.Clients.All.SendAsync("ReceiveMessage", $"{i}/{items.Count} ({percentage}) syncing", item.Symbol);
+                                var percentage = $"{Math.Round((decimal)(100 * i / count), 2)}%";
+                                await scopeData.Hub.Clients.All.SendAsync("ReceiveMessage", $"{i}/{count} ({percentage}) syncing", symbol);
                                 i++;
-                            }
-                            catch (Exception ex)
-                            {
 
                             }
+                        }
+                        catch (Exception ex)
+                        {
+
                         }
 
                         await scopeData.Synchronizator.SyncOpenOrdersBySymbol();
@@ -77,6 +89,23 @@ namespace TradingTools.Web.Jobs
 
                 await Task.Delay(1000, stoppingToken);
             }
+        }
+
+        private static IEnumerable<string> FilterSymbols(List<string> portfolioBaseAssets, List<string> allBtcUsdtSymbols)
+        {
+            var collection = new List<string>();
+            foreach (var baseAsset in portfolioBaseAssets)
+            {
+                foreach (var symbol in allBtcUsdtSymbols)
+                {
+                    if (symbol.StartsWith(baseAsset))
+                    {
+                        collection.Add(symbol);
+                    }
+                }
+            }
+
+            return collection.Concat(allBtcUsdtSymbols.Except(collection));
         }
     }
 }

@@ -188,74 +188,121 @@ namespace TradingTools.Core.Synchronization
 
         public async Task SyncByPortfolio()
         {
-            var sync = await _syncStore.Create(new T2SyncEntity { StartDate = DateTime.Now, State = Db.Enums.SyncState.InProgress });
-            var lastPortfolio = await _coinStore.FindLastPortfolio();
-            var currentPortfolio = await _exchangeService.GetUserCoinsAsync();
+            throw new NotImplementedException();
+            //var sync = await _syncStore.Create(new T2SyncEntity { StartDate = DateTime.Now, State = Db.Enums.SyncState.InProgress });
+            //var lastPortfolio = await _coinStore.FindLastPortfolio();
+            //var currentPortfolio = await _exchangeService.GetUserCoinsAsync();
 
-            foreach (var lastItem in lastPortfolio)
+            //foreach (var lastItem in lastPortfolio)
+            //{
+            //    var symbol = lastItem.T2SymbolInfo.Symbol;
+            //    var currentItem = currentPortfolio.FirstOrDefault(f => f.Coin == symbol);
+            //    if (currentItem == null)
+            //    {
+            //        _logger.LogWarning($"{symbol} with syncId={lastItem.T2SyncId} was not found in current portfolio.");
+            //        continue;
+            //    }
+
+            //    var entity = await ConvertToPortfolioCoin(currentItem);
+            //    entity.T2SyncId = sync.Id;
+
+            //    await _coinStore.Create(entity);
+
+            //    var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(symbol);
+            //    if (tradeGroup == null || tradeGroup.TradeGroupState == Db.Enums.TradeGroupState.Done)
+            //    {
+            //        ////create tradeGroup
+            //        //var tradeGroup = new T2TradeGroupEntity
+            //        //{
+            //        //    Name = symbol,
+            //        //    Trades = 
+            //        //};
+            //    }
+            //    else
+            //    {
+            //        var needUpdate = false;
+            //        if (entity.Free != currentItem.Free)
+            //        {
+            //            //TODO: notification for buy
+            //            needUpdate = true;
+            //        }
+            //        if (entity.Locked != currentItem.Locked)
+            //        {
+            //            needUpdate = true;
+            //            if (entity.Locked < currentItem.Locked)
+            //            {
+            //                //TODO: notification removing order
+            //            }
+            //            else if (entity.Locked > currentItem.Locked)
+            //            {
+            //                //TODO: notification for creating order 
+            //            }
+            //        }
+            //        if (needUpdate)
+            //        {
+            //            await SyncBySymbol(symbol);
+            //            await SyncOpenOrdersBySymbol(symbol);
+            //        }
+            //    }
+            //    //TODO: notification
+            //}
+        }
+
+        public async Task SyncPortfolio()
+        {
+            var prices = await _exchangeService.GetPricesAsync();
+            var btcUsdtPrice = prices.First(f => f.Symbol == "BTCUSDT").Price;
+
+            var version = await _coinStore.GetLastVersion();
+            version++;
+            foreach (var item in await _exchangeService.GetUserCoinsAsync())
             {
-                var symbol = lastItem.T2SymbolInfo.Symbol;
-                var currentItem = currentPortfolio.FirstOrDefault(f => f.Coin == symbol);
-                if (currentItem == null)
+                var coin = ConvertToPortfolioCoin(item);
+                coin.Version = version;
+
+                //check quote asset
+                var quoteAsset = "USDT";
+                var price = prices.FirstOrDefault(f => f.Symbol == item.Coin + "USDT");
+                if (price == null)
                 {
-                    _logger.LogWarning($"{symbol} with syncId={lastItem.T2SyncId} was not found in current portfolio.");
-                    continue;
+                    price = prices.FirstOrDefault(f => f.Symbol == item.Coin + "BTC");
+                    quoteAsset = "BTC";
                 }
 
-                var entity = await ConvertToPortfolioCoin(currentItem);
-                entity.T2SyncId = sync.Id;
+                coin.TotalQuoteValue = (coin.Free + coin.Locked) * price?.Price ?? 0;
+                coin.TotalQuoteAssetName = quoteAsset;
+                coin.TotalDollarAssetName = "USDT";
 
-                await _coinStore.Create(entity);
-
-                var tradeGroup = await _tradeGroupQuery.FindLastGroupBySymbol(symbol);
-                if (tradeGroup == null || tradeGroup.TradeGroupState == Db.Enums.TradeGroupState.Done)
+                if (quoteAsset == "USDT")
                 {
-                    ////create tradeGroup
-                    //var tradeGroup = new T2TradeGroupEntity
-                    //{
-                    //    Name = symbol,
-                    //    Trades = 
-                    //};
+                    coin.TotalQuoteValue = Math.Round(coin.TotalQuoteValue, 2);
+                    coin.TotalDollarValue = coin.TotalQuoteValue;
+                }
+                else if (quoteAsset == "BTC")
+                {
+                    coin.TotalQuoteValue = Math.Round(coin.TotalQuoteValue, 8);
+                    coin.TotalDollarValue = Math.Round(coin.TotalQuoteValue * btcUsdtPrice, 2);
                 }
                 else
                 {
-                    var needUpdate = false;
-                    if (entity.Free != currentItem.Free)
-                    {
-                        //TODO: notification for buy
-                        needUpdate = true;
-                    }
-                    if (entity.Locked != currentItem.Locked)
-                    {
-                        needUpdate = true;
-                        if (entity.Locked < currentItem.Locked)
-                        {
-                            //TODO: notification removing order
-                        }
-                        else if (entity.Locked > currentItem.Locked)
-                        {
-                            //TODO: notification for creating order 
-                        }
-                    }
-                    if (needUpdate)
-                    {
-                        await SyncBySymbol(symbol);
-                        await SyncOpenOrdersBySymbol(symbol);
-                    }
+                    coin.TotalDollarValue = 0;
                 }
-                //TODO: notification
+
+                if (coin.TotalDollarValue > 3)
+                {
+                    await _coinStore.Create(coin);
+                }
             }
         }
 
-        private async Task<T2PortfolioCoinEntity> ConvertToPortfolioCoin(BinanceUserCoinDto dto)
+        private T2PortfolioCoinEntity ConvertToPortfolioCoin(BinanceUserCoinDto dto)
         {
-            var symbolInfo = await _symbolInfoQuery.FindByName(dto.Coin);
-
             return new T2PortfolioCoinEntity
             {
                 Free = dto.Free,
                 Locked = dto.Locked,
-                T2SymbolInfoId = symbolInfo.Id
+                Coin = dto.Coin,
+                CoinName = dto.Name
             };
         }
 

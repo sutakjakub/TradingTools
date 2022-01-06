@@ -12,8 +12,7 @@ namespace TradingTools.Persistence.Stores.Interfaces
         Task<T2PortfolioCoinEntity> Create(T2PortfolioCoinEntity entity);
         Task<T2PortfolioCoinEntity> Update(T2PortfolioCoinEntity entity);
         Task<IEnumerable<T2PortfolioCoinEntity>> All();
-        Task<IEnumerable<T2PortfolioCoinEntity>> FindBySyncVersion(long syncId);
         Task<IEnumerable<T2PortfolioCoinEntity>> FindLastPortfolio();
-
+        Task<int> GetLastVersion();
     }
 }

@@ -24,6 +24,11 @@ namespace TradingTools.Db.Configs
                 .HasPrecision(18, 8);
             builder.Property(p => p.Locked)
                 .HasPrecision(18, 8);
+            builder.Property(p => p.TotalDollarValue)
+                .HasPrecision(18, 8);
+            builder.Property(p => p.TotalQuoteValue)
+                .HasPrecision(18, 8);
+
         }
     }
 }

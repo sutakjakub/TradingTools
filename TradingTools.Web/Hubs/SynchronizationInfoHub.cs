@@ -37,5 +37,16 @@ namespace TradingTools.Web.Hubs
                 await _syncStore.Create(syncEntity);
             }
         }
+
+        public async Task StopSync()
+        {
+            var syncEntity = await _syncQuery.FindLast();
+            if (syncEntity != null)
+            {
+                syncEntity.State = Db.Enums.SyncState.Done;
+
+                await _syncStore.Update(syncEntity);
+            }
+        }
     }
 }

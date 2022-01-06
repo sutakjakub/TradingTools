@@ -17,13 +17,15 @@ namespace TradingTools.Web.Jobs
             IT2SymbolInfoQuery symbolQuery,
             IHubContext<SynchronizationInfoHub> hub,
             IT2SyncQuery syncQuery,
-            IT2SyncStore syncStore)
+            IT2SyncStore syncStore,
+            IT2PortfolioCoinStore portfolio)
         {
             Synchronizator = synchronizator;
             SymbolQuery = symbolQuery;
             Hub = hub;
             SyncQuery = syncQuery;
             SyncStore = syncStore;
+            Portfolio = portfolio;
         }
 
         public IT2Synchronizator Synchronizator { get; }
@@ -31,5 +33,6 @@ namespace TradingTools.Web.Jobs
         public IHubContext<SynchronizationInfoHub> Hub { get; }
         public IT2SyncQuery SyncQuery { get; }
         public IT2SyncStore SyncStore { get; }
+        public IT2PortfolioCoinStore Portfolio { get; }
     }
 }
