@@ -22,9 +22,31 @@ namespace TradingTools.Taxes
             DateTimeOffset receivedDate, 
             DateTimeOffset dateSold,
             decimal buyPrice,
-            decimal sellPrice)
+            decimal sellPrice,
+            decimal comission,
+            decimal usdValue)
         {
-            return new TaxReportItem();
+            buyPrice *= usdValue;
+            sellPrice *= usdValue;
+
+            //https://www.investopedia.com/terms/c/costbasis.asp
+            //First in first out: ($19 - $20) x 1,000 shares = - $1,000
+            //$19 is sell price
+            var costBasis = (sellPrice - buyPrice) * amount;
+
+            var proceeds = buyPrice * amount; //minus comission
+            var gain = proceeds - costBasis;
+
+            return new TaxReportItem
+            {
+                AssetAmount = amount,
+                AssetName = assetName,
+                CostBasis = costBasis,
+                DateSold = dateSold,
+                ReceivedDate = receivedDate,
+                Gain = gain,
+                Proceeds = proceeds
+            };
         }
     }
 }
