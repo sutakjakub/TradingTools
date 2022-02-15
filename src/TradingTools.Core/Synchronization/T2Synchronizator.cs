@@ -93,7 +93,8 @@ namespace TradingTools.Core.Synchronization
                             tradeGroup = new T2TradeGroupEntity
                             {
                                 BaseAsset = symbolInfo.BaseAsset,
-                                Name = $"Default_{symbolInfo.BaseAsset}"
+                                Name = $"Default_{symbolInfo.BaseAsset}",
+                                IsDefault = true
                             };
                             tradeGroup = await _tradeGroupStore.Create(tradeGroup);
                             await _notificationStore.Create(new T2NotificationEntity
@@ -255,7 +256,8 @@ namespace TradingTools.Core.Synchronization
 
             var version = await _coinStore.GetLastVersion();
             version++;
-            foreach (var item in await _exchangeService.GetUserCoinsAsync())
+            var coins = await _exchangeService.GetUserCoinsAsync();
+            foreach (var item in coins)
             {
                 var coin = ConvertToPortfolioCoin(item);
                 coin.Version = version;
@@ -293,6 +295,10 @@ namespace TradingTools.Core.Synchronization
                     await _coinStore.Create(coin);
                 }
             }
+            var usdt = coins.FirstOrDefault(f => f.Coin == "USDT");
+            var usdtCoin = ConvertToPortfolioCoin(usdt);
+            usdtCoin.Version = version;
+            await _coinStore.Create(usdtCoin);
         }
 
         private T2PortfolioCoinEntity ConvertToPortfolioCoin(BinanceUserCoinDto dto)

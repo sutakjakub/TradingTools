@@ -69,6 +69,23 @@ namespace TradingTools.Web.ViewModels
 
         public string ClosestProfitString => $"{ClosestProfit}%";
 
+        public decimal CurrentChangePercentage { get; private set; }
+        public string CurrentChangePercentageString
+        {
+            get
+            {
+                if (CurrentChangePercentage == 0)
+                {
+                    return "0%";
+                }
+                else
+                {
+                    var d = Math.Round(CurrentChangePercentage, 2);
+                    return $"{d}%";
+                }
+            }
+        }
+
         public void Init(T2TradeGroupEntity tradeGroup)
         {
             TradeGroup = tradeGroup;
@@ -84,6 +101,10 @@ namespace TradingTools.Web.ViewModels
                 Gain = _business.TotalGain(trades);
                 GainQuoteAsset = _business.TotalGainQuoteAsset(trades);
                 RemaingPositionPercentage = _business.RemaingPositionPercentage(trades);
+                if (AverageBuyPrice > 0)
+                {
+                    CurrentChangePercentage = (CurrentPrice - AverageBuyPrice) / AverageBuyPrice * 100;
+                }
 
                 decimal lastCurrentValue = 0;
                 decimal lastBtcQuoteValue = 0;

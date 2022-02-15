@@ -27,5 +27,8 @@ namespace TradingTools.Web.ViewModels.Interfaces
 
         int GetDecimalPlaces(string asset);
         void Init(T2TradeGroupEntity tradeGroup);
+
+        decimal CurrentChangePercentage { get; }
+        string CurrentChangePercentageString { get; }
     }
 }

@@ -62,8 +62,7 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
         {
             var tradeGroup = await _tradeGroupQuery.Find(id);
             ViewModel = _provider.GetService<ITradeGroupViewModel>();
-            ViewModel.Init(tradeGroup);
-
+            
             if (tradeGroup.SymbolInfo != null)
             {
                 var outsideTrades = await _tradeQuery.FindBySymbolOutsideTradeGroup(tradeGroup.SymbolInfo.Symbol, id);
@@ -71,6 +70,8 @@ namespace TradingTools.Web.Pages.TradeGroupDetail
                 var price = await _binance.GetPriceAsync(tradeGroup.SymbolInfo.Symbol);
                 ViewModel.CurrentPrice = price;
             }
+
+            ViewModel.Init(tradeGroup);
         }
 
         public async Task<IActionResult> OnPostAssign(long id)

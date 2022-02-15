@@ -24,7 +24,7 @@
     <h1>
         @Model.ViewModel.TradeGroup.Name <span class="round border border-secondary pl-2 pr-2 small">@Model.ViewModel.TradeGroup.TradeGroupState</span>
     </h1>
-    <h4>@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol (@Model.ViewModel.CurrentPrice @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset)</h4>
+    <h4>@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol (@Model.ViewModel.CurrentPrice @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset) @Model.ViewModel.CurrentChangePercentageString</h4>
     <form method="post">
         <input type="hidden" name="groupId" value="@Model.ViewModel.TradeGroup.Id" />
         <input type="hidden" name="symbol" value="@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol" />

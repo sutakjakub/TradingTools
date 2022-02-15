@@ -43,7 +43,7 @@ namespace TradingTools.Web.Pages.TradeGroups
             foreach (var item in all)
             {
                 var viewModel = _provider.GetService<ITradeGroupViewModel>();
-                viewModel.Init(item);
+
 
                 if (item.SymbolInfo != null)
                 {
@@ -53,6 +53,7 @@ namespace TradingTools.Web.Pages.TradeGroups
                         viewModel.CurrentPrice = priceDto.Price;
                     }
                 }
+                viewModel.Init(item);
                 list.Add(viewModel);
             }
 
