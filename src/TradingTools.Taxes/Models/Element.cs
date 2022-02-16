@@ -36,8 +36,6 @@ namespace TradingTools.Taxes.Models
                 Amount = 0;
                 return sub * -1;
             }
-
-            
         }
     }
 

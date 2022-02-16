@@ -9,21 +9,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.MathLib", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.MathLibTests", "tests\TradingTools.MathLibTests\TradingTools.MathLibTests.csproj", "{07E37799-6FB7-4574-BEC3-9A54B4EFA519}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Db", "TradingTools.Db\TradingTools.Db.csproj", "{6D819F68-01CF-4BEF-8BA8-31FED615C1E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Db", "src\TradingTools.Db\TradingTools.Db.csproj", "{6D819F68-01CF-4BEF-8BA8-31FED615C1E8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.ExchangeServices", "TradingTools.Services\TradingTools.ExchangeServices.csproj", "{99689C18-F65C-4623-B777-BF2DA41541B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.ExchangeServices", "src\TradingTools.Services\TradingTools.ExchangeServices.csproj", "{99689C18-F65C-4623-B777-BF2DA41541B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Shared", "TradingTools.Shared\TradingTools.Shared.csproj", "{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Shared", "src\TradingTools.Shared\TradingTools.Shared.csproj", "{AFD12CD2-BCE8-4B6D-88CC-50B35D040431}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.TestConsole", "TradingTools.TestConsole\TradingTools.TestConsole.csproj", "{3BD4BC8A-1321-4346-9170-D89021311C06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.TestConsole", "src\TradingTools.TestConsole\TradingTools.TestConsole.csproj", "{3BD4BC8A-1321-4346-9170-D89021311C06}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Web", "TradingTools.Web\TradingTools.Web.csproj", "{C04A1361-B4F6-423B-9858-DE70268771A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Web", "src\TradingTools.Web\TradingTools.Web.csproj", "{C04A1361-B4F6-423B-9858-DE70268771A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Persistence", "TradingTools.Persistence\TradingTools.Persistence.csproj", "{70D531CB-D4CD-47C6-829F-217175216072}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Persistence", "src\TradingTools.Persistence\TradingTools.Persistence.csproj", "{70D531CB-D4CD-47C6-829F-217175216072}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Core", "src\TradingTools.Core\TradingTools.Core.csproj", "{D6528FA5-1B9B-4806-AEAE-DBFAB3EB7B49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingTools.Taxes", "src\TradingTools.Taxes\TradingTools.Taxes.csproj", "{0AFB23C2-85E0-49CA-B0BC-23631B0DD81F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TradingTools.Taxes", "src\TradingTools.Taxes\TradingTools.Taxes.csproj", "{0AFB23C2-85E0-49CA-B0BC-23631B0DD81F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{368484F3-5C63-4A7A-8F9F-64B09BFA2FE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +82,19 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E0889C6E-35B4-4C84-9F21-20742B3C17E9} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{CCABEC3A-5AC3-4E36-A2F0-07FA598E85E0} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{07E37799-6FB7-4574-BEC3-9A54B4EFA519} = {368484F3-5C63-4A7A-8F9F-64B09BFA2FE9}
+		{6D819F68-01CF-4BEF-8BA8-31FED615C1E8} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{99689C18-F65C-4623-B777-BF2DA41541B8} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{AFD12CD2-BCE8-4B6D-88CC-50B35D040431} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{3BD4BC8A-1321-4346-9170-D89021311C06} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{C04A1361-B4F6-423B-9858-DE70268771A1} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{70D531CB-D4CD-47C6-829F-217175216072} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{D6528FA5-1B9B-4806-AEAE-DBFAB3EB7B49} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
+		{0AFB23C2-85E0-49CA-B0BC-23631B0DD81F} = {7ED1B7D8-C89F-4760-A5B2-6AA292CB130D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB9581D7-FAF0-404D-908B-BA1DD8769074}
