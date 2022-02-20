@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TradingTools.Db\TradingTools.Db.csproj" />
-    <ProjectReference Include="..\..\TradingTools.Services\TradingTools.ExchangeServices.csproj" />
-    <ProjectReference Include="..\..\TradingTools.Shared\TradingTools.Shared.csproj" />
+    <ProjectReference Include="..\TradingTools.Db\TradingTools.Db.csproj" />
     <ProjectReference Include="..\TradingTools.Math\TradingTools.MathLib.csproj" />
+    <ProjectReference Include="..\TradingTools.Services\TradingTools.ExchangeServices.csproj" />
+    <ProjectReference Include="..\TradingTools.Shared\TradingTools.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TradingTools.Api\TradingTools.Api.csproj" />
-    <ProjectReference Include="..\src\TradingTools.Core\TradingTools.Core.csproj" />
-    <ProjectReference Include="..\src\TradingTools.Math\TradingTools.MathLib.csproj" />
+    <ProjectReference Include="..\TradingTools.Api\TradingTools.Api.csproj" />
+    <ProjectReference Include="..\TradingTools.Core\TradingTools.Core.csproj" />
     <ProjectReference Include="..\TradingTools.Db\TradingTools.Db.csproj" />
+    <ProjectReference Include="..\TradingTools.Math\TradingTools.MathLib.csproj" />
     <ProjectReference Include="..\TradingTools.Persistence\TradingTools.Persistence.csproj" />
   </ItemGroup>
 

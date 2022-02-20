@@ -3,50 +3,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradingTools.Db.Entities;
 
 namespace TradingTools.Taxes.Models
 {
-    public class Element
+    public class Element : ICloneable
     {
-        public long T2TradeId { get; set; }
+        public long T2TradeEntityId { get; set; }
+        public string AssetName { get; set; }
         public decimal Price { get; set; }
         public bool IsBuyer { get; set; }
         public decimal Amount { get; set; }
         public DateTimeOffset TradeDateTime { get; set; }
+        public string CommisionAsset { get; set; }
+        public decimal CommisionAmount { get; set; }
 
-        /// <summary>
-        /// Subtract amount and returns remainder.
-        /// </summary>
-        /// <example>
-        /// Amount=0.8, amount=0.2 => Amount=0.6;returns 0;
-        /// Amount=0.2, amount=0.8 => Amount=0;returns 0.6;
-        /// </example>
-        /// <param name="amount">Amount for subtract</param>
-        /// <returns>Returns remainder</returns>
-        public decimal Subtract(decimal amount)
+        public object Clone()
         {
-            var sub = Amount - amount;
-            if (sub >= 0)
-            {
-                Amount = sub;
-                return 0;
-            }
-            else
-            {
-                Amount = 0;
-                return sub * -1;
-            }
+            return (Element)MemberwiseClone();
         }
     }
 
-    public class RootElement
+    public class RootElement : ICloneable
     {
         public IList<Element> Items { get; set; }
-        public string AssetName { get; set; }
+        public string AssetName => Items?.FirstOrDefault()?.AssetName;
 
         public RootElement()
         {
             Items = new List<Element>();
+        }
+
+        public object Clone()
+        {
+            var root = (RootElement)MemberwiseClone();
+            root.Items = new List<Element>();
+            foreach (var item in Items)
+            {
+                root.Items.Add((Element)item.Clone());
+            }
+
+            return root;
         }
     }
 }
