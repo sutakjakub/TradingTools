@@ -36,7 +36,9 @@
                         <span class="bg-primary text-light round border border-secondary small pl-2 pr-2">To next target profit remaining: @group.ClosestProfitString</span>
                     </td>
                     <td><span class="font-weight-bold" style="color: @(group.CurrentChangePercentage > 0 ? "green": "red");">@(group.CurrentChangePercentageString)</span></td>
-                    <td><span>@(group.RemaingPositionPercentageString)</span></td>
+                    <td>
+                        <span>@(group.RemaingPositionPercentageString)</span>
+                        <span class="pl-2 pr-2 small">@(group.RemaingPositionString)</span>
                     <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
                     <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm") @(Math.Round((@DateTime.Now - group.TradeGroup.Created).TotalDays))(days ago) </td>
                 </tr>

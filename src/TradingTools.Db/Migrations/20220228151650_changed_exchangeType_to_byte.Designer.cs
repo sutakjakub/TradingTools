@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingTools.Db;
 
 namespace TradingTools.Db.Migrations
 {
     [DbContext(typeof(TradingToolsDbContext))]
-    partial class TradingToolsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220228151650_changed_exchangeType_to_byte")]
+    partial class changed_exchangeType_to_byte
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -396,6 +398,9 @@ namespace TradingTools.Db.Migrations
                     b.HasIndex("T2SymbolInfoId");
 
                     b.HasIndex("T2TradeGroupId");
+
+                    b.HasIndex("TradeId")
+                        .IsUnique();
 
                     b.ToTable("T2Trades");
                 });

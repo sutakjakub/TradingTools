@@ -15,6 +15,11 @@ using TradingTools.Persistence.Queries;
 using System.Collections.Generic;
 using TradingTools.Db.Entities;
 using TradingTools.Persistence.Queries.Interfaces;
+using System.IO;
+using CsvHelper;
+using System.Globalization;
+using CsvHelper.Configuration;
+using TradingTools.Shared.Enums;
 
 namespace TradingTools.TestConsole
 {
@@ -45,11 +50,20 @@ namespace TradingTools.TestConsole
 
             using var db = new TradingToolsDbContext(optionsBuilder.Options);
             using var client = new BinanceClient(binanceOptions);
+
+            //var list = await FromCsv();
+            //foreach (var item in list)
+            //{
+            //    await db.T2Trades.AddAsync(item);
+            //    await db.SaveChangesAsync();
+            //}
+            
+
             var exchange = new BinanceExchangeService(client);
             var tradeQuery = new T2TradeQuery(db);
 
             var groups = tradeQuery.GroupByBaseAsset();
-            
+
             foreach (var group in groups)
             {
                 var tradeGroup = new T2TradeGroupEntity
@@ -231,7 +245,7 @@ namespace TradingTools.TestConsole
 
         private static void SeedTradeGroups(IT2TradeQuery tradeQuery)
         {
-            
+
         }
 
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
@@ -282,5 +296,124 @@ namespace TradingTools.TestConsole
 
             return 0;
         }
+
+        private static async Task<List<T2TradeEntity>> FromCsv()
+        {
+            var path = @".\crypto_transactions_2020_FIFO_Universal.csv";
+            using var reader = new StreamReader(path);
+            using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = "," });
+            csv.Context.RegisterClassMap<ModelClassMap>();
+            var records = csv.GetRecords<Model>().ToList();
+
+            List<T2TradeEntity> entities = new();
+            foreach (var s in records.Where(p=>p.ReceivedWallet.StartsWith("Imported Wallet") && (p.Type == "Buy" || p.Type == "Sell")))
+            {
+                try
+                {
+                    var entity = new T2TradeEntity
+                    {
+                        Commission = decimal.Parse(s.FeeAmount),
+                        CommissionAsset = s.FeeCurrency,
+                        ExchangeType = ConvertToExchangeType(s.ReceivedAddress),
+                        TradeTime = DateTime.Parse(s.Date)
+                    };
+
+                    var isBuyer = s.Type == "Buy";
+                    if (isBuyer)
+                    {
+                        entity.Symbol = s.ReceivedCurrency + s.SentCurrency;
+                        entity.Quantity = decimal.Parse(s.ReceivedQuantity);
+                        entity.QuoteQuantity = decimal.Parse(s.SentQuantity);
+                    }
+                    else
+                    {
+                        entity.Symbol = s.SentCurrency + s.ReceivedCurrency;
+                        entity.Quantity = decimal.Parse(s.SentQuantity);
+                        entity.QuoteQuantity = decimal.Parse(s.ReceivedQuantity);
+                    }
+                    entity.Price = entity.QuoteQuantity / entity.Quantity;
+                    entity.IsBuyer = isBuyer;
+                    entities.Add(entity);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+
+            return entities;
+        }
+
+        private static T2ExchangeType ConvertToExchangeType(string receivedAddress)
+        {
+            foreach (T2ExchangeType item in Enum.GetValues(typeof(T2ExchangeType)))
+            {
+                if (receivedAddress.Contains(item.ToString()))
+                {
+                    return item;
+                }
+            }
+
+            return T2ExchangeType.None;
+        }
+
+    }
+
+    public class Model
+    {
+        public string Date { get; set; }
+        public string Type { get; set; }
+        public string TransactionID { get; set; }
+        public string ReceivedQuantity { get; set; }
+        public string ReceivedCurrency { get; set; }
+        public string ReceivedCurrencyBalance { get; set; }
+        public string ReceivedCostBasisCZK { get; set; }
+        public string ReceivedWallet { get; set; }
+        public string ReceivedAddress { get; set; }
+        public string ReceivedTag { get; set; }
+        public string ReceivedComment { get; set; }
+        public string SentQuantity { get; set; }
+        public string SentCurrency { get; set; }
+        public string SentCurrencyBalance { get; set; }
+        public string SentCostBasisCZK { get; set; }
+        public string SentWallet { get; set; }
+        public string SentAddress { get; set; }
+        public string SentTag { get; set; }
+        public string SentComment { get; set; }
+        public string FeeAmount { get; set; }
+        public string FeeCurrency { get; set; }
+        public string RealizedReturnCZK { get; set; }
+        public string Disabled { get; set; }
+    }
+
+    public class ModelClassMap : ClassMap<Model>
+    {
+        public ModelClassMap()
+        {
+            Map(m => m.Date).Name("Date");
+            Map(m => m.Type).Name("Type");
+            Map(m => m.TransactionID).Name("Transaction ID");
+            Map(m => m.ReceivedQuantity).Name("Received Quantity");
+            Map(m => m.ReceivedCurrency).Name("Received Currency");
+            Map(m => m.ReceivedCurrencyBalance).Name("Received Currency Balance");
+            Map(m => m.ReceivedCostBasisCZK).Name("Received Cost Basis (CZK)");
+            Map(m => m.ReceivedWallet).Name("Received Wallet");
+            Map(m => m.ReceivedAddress).Name("Received Address");
+            Map(m => m.ReceivedTag).Name("Received Tag");
+            Map(m => m.ReceivedComment).Name("Received Comment");
+            Map(m => m.SentQuantity).Name("Sent Quantity");
+            Map(m => m.SentCurrency).Name("Sent Currency");
+            Map(m => m.SentCurrencyBalance).Name("Sent Currency Balance");
+            Map(m => m.SentCostBasisCZK).Name("Sent Cost Basis (CZK)");
+            Map(m => m.SentWallet).Name("Sent Wallet");
+            Map(m => m.SentAddress).Name("Sent Address");
+            Map(m => m.SentTag).Name("Sent Tag");
+            Map(m => m.SentComment).Name("Sent Comment");
+            Map(m => m.FeeAmount).Name("Fee Amount");
+            Map(m => m.FeeCurrency).Name("Fee Currency");
+            Map(m => m.RealizedReturnCZK).Name("Realized Return (CZK)");
+            Map(m => m.Disabled).Name("Disabled");
+        }
     }
 }
+

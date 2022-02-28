@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace TradingTools.Db.Entities
     /// <summary>
     /// The T2Trade class.
     /// </summary>
+    [DebuggerDisplay("Symbol = {Symbol} ; IsBuyer = {IsBuyer} ; Price = {Price} ; Quantity = {Quantity} ; QuoteQuantity = {QuoteQuantity}")]
     public class T2TradeEntity : Entity<long>
     {
         /// <summary>

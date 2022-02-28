@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TradingTools.Taxes.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
+using FluentAssertions;
 
 namespace TradingTools.Taxes.Strategies.Tests
 {
@@ -22,19 +23,21 @@ namespace TradingTools.Taxes.Strategies.Tests
                 new RootElement
                 {
                     //AssetName = "BTC",
-                    //Items = new List<Element>
-                    //{
-                    //    CreateElement(0.5M, true, new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)),
-                    //    CreateElement(0.5M, false, new DateTimeOffset(2021,1,2,10,10,0, TimeSpan.Zero)),
-                    //}
+                    Items = new List<Element>
+                    {
+                        CreateElement(0.5M, true, new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)),
+                        CreateElement(0.5M, false, new DateTimeOffset(2021,1,2,10,10,0, TimeSpan.Zero)),
+                    }
                 }
             };
-            //var strategy = new FifoTaxStrategy(Mock.Of<ILogger<FifoTaxStrategy>>(), roots);
-            
+            var strategy = new FifoTaxStrategy(Mock.Of<ILogger<FifoTaxStrategy>>());
+
             //act
-            //strategy.Process();
+            strategy.Load(roots);
+            strategy.Process();
 
             //assert
+            strategy.TaxData.Should().HaveCount(2);
 
         }
 

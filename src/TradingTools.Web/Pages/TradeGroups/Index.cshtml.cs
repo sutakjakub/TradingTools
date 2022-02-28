@@ -33,7 +33,7 @@ namespace TradingTools.Web.Pages.TradeGroups
 
         public IList<ITradeGroupViewModel> TradeGroups { get; private set; }
 
-        public async Task OnGet()
+        public async Task OnGet(bool orderByPercentageDesc = false)
         {
             var all = await _tradeGroupQuery.All();
 
@@ -57,10 +57,23 @@ namespace TradingTools.Web.Pages.TradeGroups
                 list.Add(viewModel);
             }
 
-            TradeGroups = list
-                .OrderBy(o => o.TradeGroup.IsDefault)
-                .ThenByDescending(o => o.TradeGroup.TradeGroupState != Db.Enums.TradeGroupState.Done)
-                .ThenByDescending(o => o.TradeGroup.Created).ToList();
+
+            if (!orderByPercentageDesc)
+            {
+                TradeGroups = list
+               .OrderBy(o => o.TradeGroup.IsDefault)
+               .ThenByDescending(o => o.TradeGroup.TradeGroupState != Db.Enums.TradeGroupState.Done)
+               .ThenByDescending(o => o.TradeGroup.Created).ToList();
+            }
+            else
+            {
+                TradeGroups = list
+               .OrderBy(o => o.TradeGroup.IsDefault)
+               .ThenByDescending(o => o.TradeGroup.TradeGroupState != Db.Enums.TradeGroupState.Done)
+               .ThenByDescending(o => o.CurrentChangePercentage).ToList();
+            }
+
+                
         }
 
         public async Task<IActionResult> OnGetDownloadTradingViewList()

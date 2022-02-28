@@ -17,6 +17,8 @@ namespace TradingTools.Web.ViewModels.Interfaces
         string GainString { get; }
         decimal GainQuoteAsset { get; }
         string GainQuoteAssetString { get; }
+        decimal RemaingPosition { get; }
+        string RemaingPositionString { get; }
         decimal RemaingPositionPercentage { get; }
         string RemaingPositionPercentageString { get; }
         decimal SellQuantity { get; }

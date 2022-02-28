@@ -16,8 +16,6 @@ namespace TradingTools.Db.Configs
             //Configure base
             base.Configure(builder);
 
-            builder.HasIndex(e => e.TradeId).IsUnique();
-
             builder.Property(p => p.Id)
                 .HasComment("PK, Identity")
                 .HasColumnName($"{nameof(T2TradeEntity)}_ID");

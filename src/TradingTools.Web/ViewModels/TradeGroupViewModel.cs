@@ -86,6 +86,10 @@ namespace TradingTools.Web.ViewModels
             }
         }
 
+        public decimal RemaingPosition => BuyQuantity - SellQuantity;
+
+        public string RemaingPositionString => $"{Math.Round(RemaingPosition, 8)}{TradeGroup?.SymbolInfo?.BaseAsset}";
+
         public void Init(T2TradeGroupEntity tradeGroup)
         {
             TradeGroup = tradeGroup;
@@ -103,7 +107,7 @@ namespace TradingTools.Web.ViewModels
                 RemaingPositionPercentage = _business.RemaingPositionPercentage(trades);
                 if (AverageBuyPrice > 0)
                 {
-                    CurrentChangePercentage = (CurrentPrice - AverageBuyPrice) / AverageBuyPrice * 100;
+                    CurrentChangePercentage = (CurrentPrice - AverageCost) / AverageBuyPrice * 100;
                 }
 
                 decimal lastCurrentValue = 0;
