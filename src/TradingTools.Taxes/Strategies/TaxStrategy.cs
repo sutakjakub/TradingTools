@@ -23,6 +23,5 @@ namespace TradingTools.Taxes.Strategies
             }
         }
         public abstract void Generate(GenerateType type);
-
     }
 }

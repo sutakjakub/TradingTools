@@ -15,7 +15,7 @@
         <thead>
             <tr>
                 <th>Symbol</th>
-                <th>Change</th>
+                <th>Change (average cost)</th>
                 <th>Remaing position</th>
                 <th>Name</th>
                 <th>Created</th>
@@ -37,8 +37,9 @@
                     </td>
                     <td><span class="font-weight-bold" style="color: @(group.CurrentChangePercentage > 0 ? "green": "red");">@(group.CurrentChangePercentageString)</span></td>
                     <td>
-                        <span>@(group.RemaingPositionPercentageString)</span>
-                        <span class="pl-2 pr-2 small">@(group.RemaingPositionString)</span>
+                        <span class="d-block">@(group.RemaingPositionPercentageString)</span>
+                        <span class="small d-block">@(group.RemaingPositionString)</span>
+                        <span class="small d-block">@(group.RemaingQuotePosition)@(group.TradeGroup?.SymbolInfo?.QuoteAsset)</span>
                     <td><a asp-page="/TradeGroups/Detail" asp-route-id="@group.TradeGroup.Id">@group.TradeGroup.Name</a></td>
                     <td style="width: 170px;">@group.TradeGroup.Created.ToString("MM/dd/yyyy HH:mm") @(Math.Round((@DateTime.Now - group.TradeGroup.Created).TotalDays))(days ago) </td>
                 </tr>

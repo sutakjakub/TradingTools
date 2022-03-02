@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using FluentAssertions;
 
 namespace TradingTools.MathLib.Tests
 {
@@ -193,6 +194,101 @@ namespace TradingTools.MathLib.Tests
 
             //assert
             Assert.Equal(1.125M, result);
+        }
+
+        [Fact]
+        public void TotalGain_ShouldEquals_1()
+        {
+
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (100M, 10M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (100M, 17M)
+            };
+
+            //act
+            var result = BasicCalculator.TotalGain(buyEntries, sellEntries, 8);
+
+            //assert
+            Assert.Equal(700M, result.GainLoss);
+        }
+
+        /// <summary>
+        /// https://www.sofi.com/learn/content/how-to-calculate-stock-profit/
+        /// </summary>
+        [Fact]
+        public void TotalGain_ShouldEquals_2()
+        {
+
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (100M, 20M)
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (100M, 23M)
+            };
+
+            //act
+            var result = BasicCalculator.TotalGain(buyEntries, sellEntries, 2);
+
+            //assert
+            result.GainLoss.Should().Be(300M);
+        }
+
+        /// <summary>
+        /// https://www.janushenderson.com/en-us/investor/planning/calculate-average-cost/
+        /// </summary>
+        [Fact]
+        public void TotalGain_ShouldEquals_3()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (50M, 50M),
+                (2.86M, 35M),
+                (2.5M, 40M),
+                (1.25M, 40M),
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (5M, 70M)
+            };
+
+            //act
+            var result = BasicCalculator.TotalGain(buyEntries, sellEntries, 2);
+
+            //assert
+            result.GainLoss.Should().Be(107.10M);
+        }
+
+        [Fact]
+        public void TotalGain_ShouldEquals_4()
+        {
+            //arrange
+            var buyEntries = new List<(decimal quantity, decimal price)>
+            {
+                (0.03087M, 161968.92010786M),
+            };
+
+            var sellEntries = new List<(decimal quantity, decimal price)>
+            {
+                (0.03087012M, 168383.86115765M)
+            };
+
+            //act
+            var result = BasicCalculator.TotalGain(buyEntries, sellEntries, 2);
+
+            //assert
+            result.GainLoss.Should().Be(198.03M);
         }
     }
 }

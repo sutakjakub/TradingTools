@@ -14,6 +14,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
   </ItemGroup>
@@ -24,6 +26,7 @@
     <ProjectReference Include="..\TradingTools.Persistence\TradingTools.Persistence.csproj" />
     <ProjectReference Include="..\TradingTools.Services\TradingTools.ExchangeServices.csproj" />
     <ProjectReference Include="..\TradingTools.Shared\TradingTools.Shared.csproj" />
+    <ProjectReference Include="..\TradingTools.Taxes\TradingTools.Taxes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

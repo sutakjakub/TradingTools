@@ -20,6 +20,12 @@ using CsvHelper;
 using System.Globalization;
 using CsvHelper.Configuration;
 using TradingTools.Shared.Enums;
+using TradingTools.Taxes.Strategies;
+using Moq;
+using TradingTools.Taxes;
+using Microsoft.Extensions.Logging;
+using CoinGecko.Entities.Response.Coins;
+using MoreLinq;
 
 namespace TradingTools.TestConsole
 {
@@ -51,13 +57,45 @@ namespace TradingTools.TestConsole
             using var db = new TradingToolsDbContext(optionsBuilder.Options);
             using var client = new BinanceClient(binanceOptions);
 
+            //var source = db.T2Trades
+            //    .Where(p => p.QuoteUsdValue == 0M)
+            //    .Include(i => i.T2SymbolInfo)
+            //    .Select(s => new { asset = s.T2SymbolInfo.QuoteAsset, date = s.TradeTime, id = s.Id })
+            //    .AsEnumerable()
+            //    .Select(s => (asset: s.asset, date: s.date, id: s.id)).ToList();
+
+            //var values = await CoinGeckoData(source);
+            //foreach (var (id, usdValue) in values)
+            //{
+            //    var entity = db.T2Trades.Find(id);
+            //    entity.QuoteUsdValue = usdValue;
+            //}
+            //await db.SaveChangesAsync();
+
+
             //var list = await FromCsv();
             //foreach (var item in list)
             //{
             //    await db.T2Trades.AddAsync(item);
             //    await db.SaveChangesAsync();
             //}
-            
+
+            var data = db.T2Trades
+                .Include(i => i.T2SymbolInfo)
+                .ToList();
+            //var roots = TradingTools.Taxes.Converter.Convert(data);
+
+            var strategy = new FifoTaxStrategy(Mock.Of<ILogger<FifoTaxStrategy>>());
+            var taxCalculator = new TaxCalculator(strategy);
+            taxCalculator.Calculate(data);
+
+            using (var writer = new StreamWriter("crypto_gains.csv"))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(taxCalculator.TaxReportItems);
+            }
+
+            //strategy.Load(roots);
 
             var exchange = new BinanceExchangeService(client);
             var tradeQuery = new T2TradeQuery(db);
@@ -243,9 +281,61 @@ namespace TradingTools.TestConsole
             }
         }
 
-        private static void SeedTradeGroups(IT2TradeQuery tradeQuery)
+        private static IReadOnlyList<CoinList> coinList;
+        private static async Task<IEnumerable<(long id, decimal usdValue)>> CoinGeckoData(IEnumerable<(string asset, DateTime date, long id)> source)
         {
+            var result = new List<(long id, decimal usdValue)>();
 
+            var geckoClient = CoinGeckoClient.Instance;
+            if (coinList == null)
+            {
+                Console.WriteLine("downloading coinlist");
+                coinList = await geckoClient.CoinsClient.GetCoinList();
+            }
+
+            var minDate = source.Min(m => m.date);
+            var daysAgo = (DateTime.Now - minDate).TotalDays.ToString();
+            var distinctedAssets = source.Select(s => s.asset).Distinct();
+            var assetValues = new List<(string asset, DateTime date, decimal price)>();
+            foreach (var asset in distinctedAssets)
+            {
+                if (!assetValues.Any(a => a.asset == asset))
+                {
+                    var coin = coinList.FirstOrDefault(f => f.Symbol == asset.ToLower());
+                    if (coin == null)
+                    {
+                        Console.WriteLine($"{asset} is not in coinlist");
+                        continue;
+                    }
+                    var chartData = await geckoClient.CoinsClient.GetMarketChartsByCoinId(coin.Id, "usd", daysAgo);
+
+                    assetValues.AddRange(
+                        chartData.Prices
+                        .Select(s => new { asset, date = UnixTimeStampToDateTime(double.Parse(s[0].ToString())), price = decimal.Parse(s[1].ToString()) })
+                        .Select(s => (s.asset, s.date, s.price)).ToList());
+
+                    Console.WriteLine($"waiting 1500ms");
+                    await Task.Delay(1500);
+                }
+            }
+
+            foreach (var (asset, date, id) in source)
+            {
+                if (assetValues.Any(a => a.asset == asset))
+                {
+                    var closestTime = assetValues
+                        .Where(p => p.asset == asset)
+                        .MinBy(t => Math.Abs((t.date - date).Ticks)).ElementAt(0);
+                    result.Add((id, closestTime.price));
+                }
+                else
+                {
+                    Console.WriteLine($"not found price for {asset}");
+                }
+            }
+
+            Console.WriteLine($"returns {result.Count} items");
+            return result;
         }
 
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
@@ -255,48 +345,6 @@ namespace TradingTools.TestConsole
             dateTime = dateTime.AddMilliseconds(unixTimeStamp).ToLocalTime();
             return dateTime;
         }
-
-        private static decimal AverageCost(TradingToolsDbContext db, string v)
-        {
-            //var symbolEntity = db.T2SymbolInfos.First(f=>f.)
-            var buyEntries = db.T2Trades
-                .Where(p => p.Symbol == v && p.IsBuyer)
-                .Select(c => new { c.Quantity, c.Price })
-                .AsEnumerable()
-                .Select(s => (quantity: s.Quantity, price: s.Price))
-                .ToList();
-
-
-
-            //var buy = db.T2Orders
-            //    .Where(p => p.Symbol == v && p.Side == Shared.Enums.T2OrderSide.Buy)
-            //    .Select(c => new { c.QuantityFilled, c.Price })
-            //    .AsEnumerable()
-            //    .Select(s => (quantity: s.QuantityFilled, price: s.Price))
-            //    .ToList();
-
-            var sellEntries = db.T2Trades
-               .Where(p => p.Symbol == v && !p.IsBuyer)
-               .Select(c => new { c.Quantity, c.Price })
-               .AsEnumerable()
-               .Select(s => (quantity: s.Quantity, price: s.Price))
-               .ToList();
-
-            //var sell = db.T2Orders
-            //    .Where(p => p.Symbol == v && p.Side == Shared.Enums.T2OrderSide.Sell)
-            //    .Select(c => new { c.QuantityFilled, c.Price })
-            //    .AsEnumerable()
-            //    .Select(s => (quantity: s.QuantityFilled, price: s.Price))
-            //    .ToList();
-
-            //return BasicCalculator.AverageCost(buyEntries, sellEntries, 8);
-
-            var qBuy = db.T2Trades.Where(p => p.Symbol == "AVAXUSDT" && p.IsBuyer).Sum(s => s.Quantity);
-            var qSell = db.T2Trades.Where(p => p.Symbol == "AVAXUSDT" && !p.IsBuyer).Sum(s => s.Quantity);
-
-            return 0;
-        }
-
         private static async Task<List<T2TradeEntity>> FromCsv()
         {
             var path = @".\crypto_transactions_2020_FIFO_Universal.csv";
@@ -306,7 +354,7 @@ namespace TradingTools.TestConsole
             var records = csv.GetRecords<Model>().ToList();
 
             List<T2TradeEntity> entities = new();
-            foreach (var s in records.Where(p=>p.ReceivedWallet.StartsWith("Imported Wallet") && (p.Type == "Buy" || p.Type == "Sell")))
+            foreach (var s in records.Where(p => p.ReceivedWallet.StartsWith("Imported Wallet") && (p.Type == "Buy" || p.Type == "Sell")))
             {
                 try
                 {

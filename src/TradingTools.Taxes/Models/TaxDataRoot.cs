@@ -8,44 +8,52 @@ namespace TradingTools.Taxes.Models
 {
     public class TaxDataRoot
     {
-        public string AssetName { get; private set; }
-        public DateTimeOffset WhenRealizeProfit { get; private set; }
-        public TaxDataItemBase SellCommision { get; private set; }
+        public string AssetName => SellItem?.AssetName;
+        public DateTimeOffset WhenRealizeProfit => SellItem.When;
         public IList<TaxDataItem> BuyItems { get; private set; }
+        public TaxDataItem SellItem { get; private set; }
 
         protected TaxDataRoot()
         {
-            BuyItems = new List<TaxDataItem>(); 
+            BuyItems = new List<TaxDataItem>();
         }
-        
+
         public static TaxDataRoot Create(Element sellElement, IList<Element> buyElement)
         {
             var root = new TaxDataRoot
             {
-                AssetName = sellElement.AssetName,
-                WhenRealizeProfit = sellElement.TradeDateTime,
-                SellCommision = new TaxDataItemBase
+                SellItem = new TaxDataItem
                 {
-                    Amount = sellElement.CommisionAmount,
-                    AssetName = sellElement.CommisionAsset
+                    Amount = sellElement.Amount,
+                    AssetName = sellElement.AssetName,
+                    AssetUsdValue = sellElement.QuoteAssetUsdValue,
+                    Price = sellElement.Price,
+                    When = sellElement.TradeDateTime,
+                    Commision = new TaxDataItemBase
+                    {
+                        Amount = sellElement.CommisionAmount,
+                        AssetName = sellElement.CommisionAsset,
+                        AssetUsdValue = sellElement.CommisionUsdValue
+                    }
                 }
-                
             };
             root.BuyItems = new List<TaxDataItem>();
             foreach (var item in buyElement)
             {
-                root.BuyItems.Add(new TaxDataItem 
-                { 
+                root.BuyItems.Add(new TaxDataItem
+                {
                     Amount = item.Amount,
                     AssetName = item.AssetName,
+                    QuoteAssetName = item.QuoteAssetName,
+                    AssetUsdValue = item.QuoteAssetUsdValue,
                     Price = item.Price,
                     When = item.TradeDateTime,
-                    Commision = new TaxDataItemBase 
+                    Commision = new TaxDataItemBase
                     {
                         Amount = item.CommisionAmount,
-                        AssetName = item.AssetName
-                    },
-
+                        AssetName = item.CommisionAsset,
+                        AssetUsdValue = item.CommisionUsdValue
+                    }
                 });
             }
 
@@ -56,6 +64,7 @@ namespace TradingTools.Taxes.Models
     public class TaxDataItem : TaxDataItemBase
     {
         public decimal Price { get; set; }
+        public string QuoteAssetName { get; set; }
         public DateTimeOffset When { get; set; }
         public TaxDataItemBase Commision { get; set; }
     }
@@ -64,5 +73,6 @@ namespace TradingTools.Taxes.Models
     {
         public string AssetName { get; set; }
         public decimal Amount { get; set; }
+        public decimal AssetUsdValue { get; set; }
     }
 }

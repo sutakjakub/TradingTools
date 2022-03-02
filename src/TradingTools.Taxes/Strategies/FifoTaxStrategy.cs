@@ -10,6 +10,8 @@ namespace TradingTools.Taxes.Strategies
 {
     public class FifoTaxStrategy : TaxStrategy
     {
+        private const int DEFAULT_REMAINDER = -999999999;
+
         private readonly ILogger<FifoTaxStrategy> _logger;
 
         public FifoTaxStrategy(
@@ -23,17 +25,21 @@ namespace TradingTools.Taxes.Strategies
         public override void Process()
         {
             taxReportItems = new List<TaxReportItem>();
+            TaxData = new List<TaxDataRoot>();
 
             foreach (var root in Roots)
             {
+                if (root.Symbol.StartsWith("VET"))
+                { 
+                }
                 var buyList = new Queue<Element>(root.Items.Where(p => p.IsBuyer).OrderBy(o => o.TradeDateTime));
-                var sellQ = new Queue<Element>(root.Items.Where(p => !p.IsBuyer));
+                var sellQ = new Queue<Element>(root.Items.Where(p => !p.IsBuyer).OrderBy(o => o.TradeDateTime));
 
                 while (sellQ.Count > 0)
                 {
                     if (!buyList.Any())
                     {
-                        _logger.LogWarning($"You sold more then bought! Remaining {sellQ.Sum(s => s.Amount)}{root.AssetName}");
+                        _logger.LogWarning($"You sold more then bought! Remaining {sellQ.Sum(s => s.Amount)}{root.Symbol}");
                         break;
                     }
 
@@ -49,27 +55,26 @@ namespace TradingTools.Taxes.Strategies
         {
             var result = new List<Element>();
 
-            decimal remainder = 0;
-            RemainderRecurse(ref remainder, buyList, sellElement, result);
+            RemainderRecurse(buyList, sellElement, result);
 
             return result;
         }
 
-        private void RemainderRecurse(ref decimal remainder, Queue<Element> buyList, Element sellElement, List<Element> result)
+        private void RemainderRecurse(Queue<Element> buyList, Element sellElement, List<Element> result)
         {
             if (!buyList.Any())
             {
-                _logger.LogWarning($"No more buy element for Remainder={remainder}.");
+                _logger.LogWarning($"No more buy element.");
                 return;
             }
 
             var buyElement = buyList.First();
-            remainder = buyElement.Amount - sellElement.Amount;
+            var remainder = buyElement.Amount - sellElement.Amount;
 
             //remainder <= 0 is ok but
             if (remainder > 0)
             {
-                buyElement.Amount -= remainder;
+                buyElement.Amount -= sellElement.Amount;
                 //protože potřebuju buy element nechat v kolekci pro další sellElement, ale zároveŃ potřebuju kus buy elementu do
                 //resultu ... potřebuju jakoby rozpůlit element
                 var cloned = buyElement.Clone();
@@ -78,14 +83,23 @@ namespace TradingTools.Taxes.Strategies
             else
             {
                 result.Add(buyList.Dequeue());
+                //toto je zbytek, který potřebuju v dalším cyklu "dodělat"
+                sellElement.Amount = Math.Abs(remainder);
             }
 
-            if (remainder > 0)
+
+            if (remainder >= 0)
             {
+                //protože jsem všechnu quantity sell item vecpal do buy item
                 return;
             }
 
-            RemainderRecurse(ref remainder, buyList, sellElement, result);
+            //if (remainder <= 0)
+            //{
+            //    return;
+            //}
+
+            RemainderRecurse(buyList, sellElement, result);
         }
 
         public override void Generate(GenerateType type)

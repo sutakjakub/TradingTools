@@ -86,9 +86,15 @@ namespace TradingTools.Web.ViewModels
             }
         }
 
-        public decimal RemaingPosition => BuyQuantity - SellQuantity;
+        public decimal RemaingPosition { get; private set; }
 
         public string RemaingPositionString => $"{Math.Round(RemaingPosition, 8)}{TradeGroup?.SymbolInfo?.BaseAsset}";
+
+        public decimal BuyQuoteQuantity { get; private set; }
+
+        public decimal SellQuoteQuantity { get; private set; }
+
+        public decimal RemaingQuotePosition { get; private set; }
 
         public void Init(T2TradeGroupEntity tradeGroup)
         {
@@ -102,9 +108,14 @@ namespace TradingTools.Web.ViewModels
                 AverageCost = _business.AverageCost(trades);
                 BuyQuantity = _business.BuyQuantity(trades);
                 SellQuantity = _business.SellQuantity(trades);
+                BuyQuoteQuantity = _business.BuyQuantity(trades, true);
+                SellQuoteQuantity = _business.SellQuantity(trades, true);
                 Gain = _business.TotalGain(trades);
-                GainQuoteAsset = _business.TotalGainQuoteAsset(trades);
+                GainQuoteAsset = _business.TotalGain(trades);
+                RemaingPosition = _business.RemaingPosition(trades);
                 RemaingPositionPercentage = _business.RemaingPositionPercentage(trades);
+                RemaingQuotePosition = _business.RemaingPosition(trades, true);
+
                 if (AverageBuyPrice > 0)
                 {
                     CurrentChangePercentage = (CurrentPrice - AverageCost) / AverageBuyPrice * 100;

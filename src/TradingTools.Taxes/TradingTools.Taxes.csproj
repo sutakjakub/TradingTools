@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="27.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TradingTools.Db\TradingTools.Db.csproj" />
+    <ProjectReference Include="..\TradingTools.Math\TradingTools.MathLib.csproj" />
   </ItemGroup>
 
 </Project>

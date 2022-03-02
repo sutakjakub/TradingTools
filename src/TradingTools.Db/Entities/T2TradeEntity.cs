@@ -85,6 +85,10 @@ namespace TradingTools.Db.Entities
         /// </summary>
         public string CommissionAsset { get; set; }
         /// <summary>
+        /// Dollar value of 1 comission asset at trade time
+        /// </summary>
+        public decimal CommissionUsdValue { get; set; }
+        /// <summary>
         /// The time the trade was made
         /// </summary>
         public DateTime TradeTime { get; set; }

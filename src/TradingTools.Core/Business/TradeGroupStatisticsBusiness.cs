@@ -13,12 +13,6 @@ namespace TradingTools.Core.Business
     public class TradeGroupStatisticsBusiness : ITradeGroupStatisticsBusiness
     {
         private const int DECIMAL_PLACES = 8;
-        private readonly IBinanceExchangeService _binance;
-
-        public TradeGroupStatisticsBusiness(IBinanceExchangeService binance)
-        {
-            _binance = binance;
-        }
 
         public decimal AverageBuyPrice(IEnumerable<T2TradeEntity> trades)
         {
@@ -37,18 +31,19 @@ namespace TradingTools.Core.Business
             return BasicCalculator.AverageCost(CreateEntries(trades, true), CreateEntries(trades, false), DECIMAL_PLACES);
         }
 
-        public decimal BuyQuantity(IEnumerable<T2TradeEntity> trades)
+        public decimal BuyQuantity(IEnumerable<T2TradeEntity> trades, bool quoteAsset = false)
         {
-            return Quantity(trades, true);
+            return Quantity(trades, true, quoteAsset);
         }
 
-        public decimal SellQuantity(IEnumerable<T2TradeEntity> trades)
+        public decimal SellQuantity(IEnumerable<T2TradeEntity> trades, bool quoteAsset = false)
         {
-            return Quantity(trades, false);
+            return Quantity(trades, false, quoteAsset);
         }
 
         public decimal TotalGain(IEnumerable<T2TradeEntity> trades)
         {
+
             var averageBuyPrice = AverageBuyPrice(trades);
             var averageSellPrice = AverageSellPrice(trades);
             if (averageSellPrice == 0)
@@ -56,27 +51,28 @@ namespace TradingTools.Core.Business
                 return 0;
             }
 
-            if (averageBuyPrice <= averageSellPrice)
-            {
-                var increase = averageSellPrice - averageBuyPrice;
-                return increase / averageSellPrice;
-            }
-            else
-            {
-                var decrease = averageSellPrice - averageBuyPrice;
-                return decrease / averageSellPrice;
-            }
+            return (averageSellPrice - averageBuyPrice) / averageSellPrice;
         }
 
-        public decimal TotalGainQuoteAsset(IEnumerable<T2TradeEntity> trades)
+        //public decimal TotalGain(IEnumerable<T2TradeEntity> trades)
+        //{
+        //    var totalGain = TotalGain(trades);
+        //    var sum = trades.Where(p => p.IsBuyer).Sum(s => s.Quantity);
+
+        //    return totalGain * sum;
+        //}
+
+         public decimal RemaingPosition(IEnumerable<T2TradeEntity> trades, bool quoteAsset = false)
         {
-            var totalGain = TotalGain(trades);
-            var sum = trades.Where(p => p.IsBuyer).Sum(s => s.QuoteQuantity);
-
-            return totalGain * sum;
+            var total = BuyQuantity(trades, quoteAsset);
+            if (total == 0)
+            {
+                return 0;
+            }
+            return total - SellQuantity(trades, quoteAsset);
         }
 
-        public decimal RemaingPositionPercentage(IEnumerable<T2TradeEntity> trades)
+        public decimal RemaingPositionPercentage(IEnumerable<T2TradeEntity> trades) 
         {
             var total = BuyQuantity(trades);
             if (total == 0)
@@ -87,9 +83,11 @@ namespace TradingTools.Core.Business
             return diff / total;
         }
 
-        private static decimal Quantity(IEnumerable<T2TradeEntity> trades, bool isBuyer)
+        private static decimal Quantity(IEnumerable<T2TradeEntity> trades, bool isBuyer, bool quoteAsset = false)
         {
-            return trades.Where(p => p.IsBuyer == isBuyer).Sum(s => s.Quantity);
+            return trades
+                .Where(p => p.IsBuyer == isBuyer)
+                .Sum(s => quoteAsset ? s.QuoteQuantity : s.Quantity);
         }
 
         private static IEnumerable<(decimal quantity, decimal price)> CreateEntries(IEnumerable<T2TradeEntity> trades, bool isBuyer)
@@ -100,7 +98,5 @@ namespace TradingTools.Core.Business
                .AsEnumerable()
                .Select(s => (quantity: s.Quantity, price: s.Price));
         }
-
-
     }
 }

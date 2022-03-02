@@ -24,6 +24,10 @@
     <h1>
         @Model.ViewModel.TradeGroup.Name <span class="round border border-secondary pl-2 pr-2 small">@Model.ViewModel.TradeGroup.TradeGroupState</span>
     </h1>
+    @if (@Model.ViewModel.SellQuantity > @Model.ViewModel.BuyQuantity)
+    { 
+        <h2 class="text-danger">INCORRECT CALCULATION - MORE SELL THEN BUY IN GROUP</h2>
+    }
     <h4>@Model.ViewModel.TradeGroup.SymbolInfo?.Symbol (@Model.ViewModel.CurrentPrice @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset) @Model.ViewModel.CurrentChangePercentageString</h4>
     <form method="post">
         <input type="hidden" name="groupId" value="@Model.ViewModel.TradeGroup.Id" />
@@ -39,10 +43,12 @@
             <tr>
                 <td>Buy Quantity</td>
                 <td>@Model.ViewModel.BuyQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.BaseAsset</td>
+                <td>@Model.ViewModel.BuyQuoteQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
             </tr>
             <tr>
                 <td>Sell Quantity</td>
                 <td>@Model.ViewModel.SellQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.BaseAsset</td>
+                <td>@Model.ViewModel.SellQuoteQuantity @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
             </tr>
             <tr>
                 <td>Average Buy Price</td>
@@ -86,7 +92,8 @@
             </tr>
             <tr>
                 <td>Remaing Position</td>
-                <td>@Model.ViewModel.RemaingPositionPercentageString</td>
+                <td>@Model.ViewModel.RemaingPositionPercentageString / @Model.ViewModel.RemaingPositionString</td>
+                <td>@Model.ViewModel.RemaingQuotePosition @Model.ViewModel.TradeGroup.SymbolInfo?.QuoteAsset</td>
             </tr>
         </tbody>
     </table>

@@ -15,7 +15,7 @@ namespace TradingTools.Taxes.Strategies.Tests
     public class FifoTaxStrategyTests
     {
         [Fact]
-        public void ProcessTest()
+        public void Process_Simple_Should_Work()
         {
             //arrange
             var roots = new List<RootElement>
@@ -25,8 +25,26 @@ namespace TradingTools.Taxes.Strategies.Tests
                     //AssetName = "BTC",
                     Items = new List<Element>
                     {
-                        CreateElement(0.5M, true, new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)),
-                        CreateElement(0.5M, false, new DateTimeOffset(2021,1,2,10,10,0, TimeSpan.Zero)),
+                        new Element
+                        {
+                            Amount = 0.5M,
+                            AssetName = "BTC",
+                            CommisionAmount = 0.1M,
+                            CommisionAsset = "USDT",
+                            IsBuyer = true,
+                            Price = 12500M,
+                            TradeDateTime = new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)
+                        },
+                        new Element
+                        {
+                            Amount = 0.5M,
+                            AssetName = "BTC",
+                            CommisionAmount = 0.1M,
+                            CommisionAsset = "USDT",
+                            IsBuyer = false,
+                            Price = 15000M,
+                            TradeDateTime = new DateTimeOffset(2021,1,2,10,10,0, TimeSpan.Zero)
+                        },
                     }
                 }
             };
@@ -37,18 +55,65 @@ namespace TradingTools.Taxes.Strategies.Tests
             strategy.Process();
 
             //assert
-            strategy.TaxData.Should().HaveCount(2);
+            strategy.TaxData.Should().HaveCount(1);
+            strategy.TaxData[0].BuyItems.Should().HaveCount(1);
 
         }
 
-        private static Element CreateElement(decimal amount, bool isBuyer, DateTimeOffset tradeDateTime)
+        [Fact]
+        public void Process_SellWithRemainder_Should_Work()
         {
-            return new Element
+            //arrange
+            var roots = new List<RootElement>
             {
-                Amount= amount,
-                IsBuyer = isBuyer,
-                TradeDateTime = tradeDateTime
+                new RootElement
+                {
+                    //AssetName = "BTC",
+                    Items = new List<Element>
+                    {
+                        new Element
+                        {
+                            Amount = 0.2M,
+                            AssetName = "BTC",
+                            CommisionAmount = 0.1M,
+                            CommisionAsset = "USDT",
+                            IsBuyer = true,
+                            Price = 12500M,
+                            TradeDateTime = new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)
+                        },
+                        new Element
+                        {
+                            Amount = 0.3M,
+                            AssetName = "BTC",
+                            CommisionAmount = 0.1M,
+                            CommisionAsset = "USDT",
+                            IsBuyer = true,
+                            Price = 12500M,
+                            TradeDateTime = new DateTimeOffset(2021,1,1,10,10,0, TimeSpan.Zero)
+                        },
+                        new Element
+                        {
+                            Amount = 0.5M,
+                            AssetName = "BTC",
+                            CommisionAmount = 0.1M,
+                            CommisionAsset = "USDT",
+                            IsBuyer = false,
+                            Price = 15000M,
+                            TradeDateTime = new DateTimeOffset(2021,1,2,10,10,0, TimeSpan.Zero)
+                        },
+                    }
+                }
             };
+            var strategy = new FifoTaxStrategy(Mock.Of<ILogger<FifoTaxStrategy>>());
+
+            //act
+            strategy.Load(roots);
+            strategy.Process();
+
+            //assert
+            strategy.TaxData.Should().HaveCount(1);
+            strategy.TaxData[0].BuyItems.Should().HaveCount(2);
         }
+
     }
 }

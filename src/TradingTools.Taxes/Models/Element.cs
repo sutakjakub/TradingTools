@@ -11,12 +11,15 @@ namespace TradingTools.Taxes.Models
     {
         public long T2TradeEntityId { get; set; }
         public string AssetName { get; set; }
+        public string QuoteAssetName { get; set; }
+        public decimal QuoteAssetUsdValue { get; set; }
         public decimal Price { get; set; }
         public bool IsBuyer { get; set; }
         public decimal Amount { get; set; }
         public DateTimeOffset TradeDateTime { get; set; }
         public string CommisionAsset { get; set; }
         public decimal CommisionAmount { get; set; }
+        public decimal CommisionUsdValue { get; set; }
 
         public object Clone()
         {
@@ -27,7 +30,7 @@ namespace TradingTools.Taxes.Models
     public class RootElement : ICloneable
     {
         public IList<Element> Items { get; set; }
-        public string AssetName => Items?.FirstOrDefault()?.AssetName;
+        public string Symbol => Items?.FirstOrDefault()?.AssetName;
 
         public RootElement()
         {

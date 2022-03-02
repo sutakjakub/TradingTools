@@ -249,15 +249,46 @@ namespace TradingTools.MathLib
             return SolveRound(result, decimalPlaces);
         }
 
-        //public static decimal CostBasis(IEnumerable<CostBasisModel> source, int decimalPlaces = 2)
-        //{
-        //    var result = (source.Sum(s => s.PurchasePrice) + source.Sum(s => s.Fee)) / source.Sum(s => s.Quantity);
-        //    return SolveRound(result, decimalPlaces);
-        //}
 
-        //public static decimal AverageCostPerShare(decimal totalPurchase, int decimalPlaces = 2)
-        //{
+        /// <summary>
+        /// Returns total gain.
+        /// </summary>
+        /// <param name="buyEntries"></param>
+        /// <param name="sellEntries"></param>
+        /// <param name="decimalPlaces"></param>
+        /// <returns></returns>
+        public static TotalGainResult TotalGain(IEnumerable<(decimal quantity, decimal price)> buyEntries, IEnumerable<(decimal quantity, decimal price)> sellEntries, int decimalPlaces = 2)
+        {
+            var totalPurchase = buyEntries.Sum(s => s.quantity * s.price);
+            var numberOfShares = buyEntries.Sum(s => s.quantity);
+            //per share
+            var averageCost = totalPurchase / numberOfShares;
+            var netProceeds = sellEntries.Sum(s => s.quantity * s.price);
+            var costBasis = averageCost * sellEntries.Sum(s => s.quantity);
+            var gainOrLoss = netProceeds - costBasis;
 
+            return new TotalGainResult
+            {
+                AverageCost = averageCost,
+                CostBasis = costBasis,
+                GainLoss = SolveRound(gainOrLoss, decimalPlaces),
+                NetProceeds = netProceeds,
+                NumberOfShares = numberOfShares,
+                TotalPurchase = totalPurchase
+            };
+        }
+
+        ///// <summary>
+        ///// Returns total gain in percentage.
+        ///// </summary>
+        ///// <param name="buyEntries"></param>
+        ///// <param name="sellEntries"></param>
+        ///// <param name="decimalPlaces"></param>
+        ///// <returns></returns>
+        //public static decimal TotalGainPercentage(IEnumerable<(decimal quantity, decimal price)> buyEntries, IEnumerable<(decimal quantity, decimal price)> sellEntries, int decimalPlaces = 2)
+        //{
+        //    var totalGain = TotalGain(buyEntries, sellEntries, decimalPlaces);
+        //    return (totalGain * ) / 100;
         //}
     }
 }

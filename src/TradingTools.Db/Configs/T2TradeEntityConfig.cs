@@ -30,6 +30,8 @@ namespace TradingTools.Db.Configs
                 .HasPrecision(18, 8);
             builder.Property(p => p.QuoteUsdValue)
                 .HasPrecision(18, 8);
+            builder.Property(p => p.CommissionUsdValue)
+               .HasPrecision(18, 8);
         }
     }
 }

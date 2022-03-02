@@ -18,10 +18,13 @@ namespace TradingTools.Taxes
                 TradeDateTime = entity.TradeTime,
                 IsBuyer = entity.IsBuyer,
                 Price = entity.Price,
-                T2TradeEntityId = entity.T2TradeId,
+                T2TradeEntityId = entity.Id,
                 AssetName = entity.T2SymbolInfo.BaseAsset,
+                QuoteAssetName = entity.T2SymbolInfo.QuoteAsset,
+                QuoteAssetUsdValue = entity.QuoteUsdValue,
                 CommisionAmount = entity.Commission,
-                CommisionAsset = entity.CommissionAsset
+                CommisionAsset = entity.CommissionAsset,
+                CommisionUsdValue = entity.CommissionUsdValue
             };
         }
 
