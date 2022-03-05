@@ -11,30 +11,40 @@ namespace TradingTools.Taxes
 {
     public class TaxCalculator
     {
-        private readonly TaxStrategy _strategy;
-
-        public IList<CalcHistoryModel> CalcHistoryItems { get; set; }
-
-        public IList<TaxReportItem> TaxReportItems { get; private set; }
+        public IEnumerable<TaxReportItem> TaxReportItems { get; private set; }
+        public IEnumerable<T2TradeEntity> Source { get; private set; }
+        public TaxStrategy Strategy { get; }
 
         public TaxCalculator(TaxStrategy strategy)
         {
-            _strategy = strategy;
+            Strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
+        }
+
+        public decimal TotalGain()
+        {
+            if (TaxReportItems == null)
+                return 0;
+
+            return TaxReportItems.Sum(s => s.GainUsdValue);
         }
 
         public void Calculate(IEnumerable<T2TradeEntity> entities)
         {
+            Source = entities.ToList();
             var roots = CreateRootElements(entities);
-            _strategy.Load(roots);
-            _strategy.Process();
+            Strategy.Load(roots);
+            Strategy.Process();
 
-            TaxReportItems = ConvertToItems(_strategy.TaxData).OrderByDescending(o => o.DateSold).ToList();
+            TaxReportItems = ConvertToItems(Strategy.TaxData).OrderBy(o => o.DateSold).ToList();
         }
 
         public static IEnumerable<TaxReportItem> ConvertToItems(IList<TaxDataRoot> source)
         {
             foreach (var root in source)
             {
+                if (root.AssetName == "BTC")
+                {
+                }
                 var commisionInUsd = root.SellItem.Commision.Amount * root.SellItem.Commision.AssetUsdValue;
                 commisionInUsd /= root.BuyItems.Count;
 
@@ -43,16 +53,11 @@ namespace TradingTools.Taxes
                     yield return TaxReportItem.CreateBuyItem(
                        buyItem.Amount,
                        buyItem.AssetName,
-                       buyItem.QuoteAssetName,
-                       root.SellItem.AssetUsdValue,
                        buyItem.When.Date,
                        root.WhenRealizeProfit.Date,
-                       buyItem.Price,
-                       root.SellItem.Price,
-                       buyItem.Commision.Amount,
-                       buyItem.Commision.AssetName,
-                       buyItem.Commision.AssetUsdValue,
-                       commisionInUsd
+                       buyItem.Price * buyItem.AssetUsdValue,
+                       root.SellItem.Price * root.SellItem.AssetUsdValue,
+                       commisionInUsd + (buyItem.Commision.Amount * buyItem.Commision.AssetUsdValue)
                        );
                 }
             }

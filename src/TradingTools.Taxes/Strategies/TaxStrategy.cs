@@ -22,6 +22,7 @@ namespace TradingTools.Taxes.Strategies
                 Roots.Add((RootElement)root.Clone());
             }
         }
-        public abstract void Generate(GenerateType type);
+
+        public abstract string UserFriendlyName { get; }
     }
 }

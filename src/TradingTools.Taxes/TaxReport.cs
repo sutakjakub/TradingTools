@@ -1,5 +1,8 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using TradingTools.Db.Entities;
 using TradingTools.Taxes.Models;
@@ -9,18 +12,34 @@ namespace TradingTools.Taxes
 {
     public class TaxReport
     {
-        private readonly TaxStrategy _strategy;
+        private readonly TaxCalculator _taxCalculator;
 
-        public TaxReport(TaxStrategy strategy)
+        public TaxReport(TaxCalculator taxCalculator)
         {
-            _strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
+            _taxCalculator = taxCalculator ?? throw new ArgumentNullException(nameof(taxCalculator));
         }
-
-        public IList<TaxReportItem> Items { get; private set; }
 
         public void Load(IEnumerable<T2TradeEntity> trades)
         {
-           
+            _taxCalculator.Calculate(trades);
+        }
+
+        public void Generate(GenerateType type)
+        {
+            if (type == GenerateType.Csv)
+            {
+                using (var writer = new StreamWriter($"{DateTime.Now.Year}_{_taxCalculator.Strategy.UserFriendlyName}_crypto_gains.csv"))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(_taxCalculator.TaxReportItems);
+                }
+
+                using (var writer = new StreamWriter($"{DateTime.Now.Year}_{_taxCalculator.Strategy.UserFriendlyName}_crypto_transactions.csv"))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(_taxCalculator.Source);
+                }
+            }
         }
     }
 }

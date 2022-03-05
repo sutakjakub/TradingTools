@@ -257,13 +257,13 @@ namespace TradingTools.MathLib
         /// <param name="sellEntries"></param>
         /// <param name="decimalPlaces"></param>
         /// <returns></returns>
-        public static TotalGainResult TotalGain(IEnumerable<(decimal quantity, decimal price)> buyEntries, IEnumerable<(decimal quantity, decimal price)> sellEntries, int decimalPlaces = 2)
+        public static TotalGainResult TotalGain(IEnumerable<(decimal quantity, decimal price)> buyEntries, IEnumerable<(decimal quantity, decimal price)> sellEntries, decimal commision, int decimalPlaces = 2)
         {
             var totalPurchase = buyEntries.Sum(s => s.quantity * s.price);
             var numberOfShares = buyEntries.Sum(s => s.quantity);
             //per share
             var averageCost = totalPurchase / numberOfShares;
-            var netProceeds = sellEntries.Sum(s => s.quantity * s.price);
+            var netProceeds = sellEntries.Sum(s => s.quantity * s.price) - commision;
             var costBasis = averageCost * sellEntries.Sum(s => s.quantity);
             var gainOrLoss = netProceeds - costBasis;
 

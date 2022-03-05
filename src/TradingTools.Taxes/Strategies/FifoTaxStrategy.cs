@@ -10,8 +10,6 @@ namespace TradingTools.Taxes.Strategies
 {
     public class FifoTaxStrategy : TaxStrategy
     {
-        private const int DEFAULT_REMAINDER = -999999999;
-
         private readonly ILogger<FifoTaxStrategy> _logger;
 
         public FifoTaxStrategy(
@@ -22,6 +20,8 @@ namespace TradingTools.Taxes.Strategies
 
         private List<TaxReportItem> taxReportItems;
 
+        public override string UserFriendlyName => "FIFO";
+
         public override void Process()
         {
             taxReportItems = new List<TaxReportItem>();
@@ -29,7 +29,7 @@ namespace TradingTools.Taxes.Strategies
 
             foreach (var root in Roots)
             {
-                if (root.Symbol.StartsWith("VET"))
+                if (root.Symbol.StartsWith("BTC"))
                 { 
                 }
                 var buyList = new Queue<Element>(root.Items.Where(p => p.IsBuyer).OrderBy(o => o.TradeDateTime));
@@ -74,11 +74,13 @@ namespace TradingTools.Taxes.Strategies
             //remainder <= 0 is ok but
             if (remainder > 0)
             {
-                buyElement.Amount -= sellElement.Amount;
+                buyElement.Amount = remainder;
+                //buyElement.Amount -= sellElement.Amount;
                 //protože potřebuju buy element nechat v kolekci pro další sellElement, ale zároveŃ potřebuju kus buy elementu do
                 //resultu ... potřebuju jakoby rozpůlit element
-                var cloned = buyElement.Clone();
-                result.Add((Element)cloned);
+                var cloned = (Element)buyElement.Clone();
+                cloned.Amount = sellElement.Amount;
+                result.Add(cloned);
             }
             else
             {
@@ -100,11 +102,6 @@ namespace TradingTools.Taxes.Strategies
             //}
 
             RemainderRecurse(buyList, sellElement, result);
-        }
-
-        public override void Generate(GenerateType type)
-        {
-            throw new NotImplementedException();
         }
     }
 }

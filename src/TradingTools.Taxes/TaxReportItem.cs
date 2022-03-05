@@ -11,44 +11,35 @@ namespace TradingTools.Taxes
 {
     public class TaxReportItem
     {
+        
         [Name("Asset Name")]
         public string AssetName { get; set; }
         [Name("Asset Amount")]
         public decimal AssetAmount { get; set; }
-        [Name("Asset Price")]
-        public decimal AssetPrice { get; set; }
-        [Name("Quote Asset Name")]
-        public string QuoteAssetName { get; set; }
-        [Name("Gain")]
-        public decimal Gain { get; set; }
+
         [Name("Gain USD")]
         public decimal GainUsdValue { get; set; }
         [Name("Received Date")]
         public DateTime ReceivedDate { get; set; }
         [Name("Sold Date")]
         public DateTime DateSold { get; set; }
-        [Name("Term Type")]
-        public string TermType { get; set; }
         [Name("Proceeds")]
         public decimal Proceeds { get; set; }
         [Name("Cost Basis")]
         public decimal CostBasis { get; set; }
         [Name("Commision USD")]
         public decimal CommisionUsdValue { get; set; }
+        [Name("Term Type")]
+        public string TermType { get; set; }
 
         public static TaxReportItem CreateBuyItem(
             decimal amount, 
             string assetName,
-            string quoteAssetName,
-            decimal quoteUsdValue,
             DateTime receivedDate, 
             DateTime dateSold,
             decimal buyPrice,
             decimal sellPrice,
-            decimal buyComission,
-            string buycommissionAssetName,
-            decimal buyCommisionUsdValue,
-            decimal sellItemCommisionInUsd)
+            decimal totalCommisionInUsd)
         {
             //buyPrice *= usdValue;
             //sellPrice *= usdValue;
@@ -64,29 +55,19 @@ namespace TradingTools.Taxes
             var gainResult = BasicCalculator.TotalGain(
                 new List<(decimal quantity, decimal price)> { (amount, buyPrice) },
                 new List<(decimal quantity, decimal price)> { (amount, sellPrice) },
+                totalCommisionInUsd,
                 8);
-
-            decimal gainUsdValue = gainResult.GainLoss;
-            if (!quoteAssetName.ToLower().StartsWith("usd"))
-            {
-                gainUsdValue = gainResult.GainLoss * quoteUsdValue;
-            }
-
-            var totalCommisionUsd = sellItemCommisionInUsd + (buyComission * buyCommisionUsdValue);
 
             return new TaxReportItem
             {
                 AssetAmount = amount,
                 AssetName = assetName,
-                QuoteAssetName = quoteAssetName,
-                AssetPrice = buyPrice,
                 CostBasis = gainResult.CostBasis,
                 DateSold = dateSold,
                 ReceivedDate = receivedDate,
-                Gain = gainResult.GainLoss,
-                GainUsdValue = gainUsdValue,
+                GainUsdValue = gainResult.GainLoss,
                 Proceeds = gainResult.NetProceeds,
-                CommisionUsdValue = totalCommisionUsd,
+                CommisionUsdValue = totalCommisionInUsd,
                 TermType = "Short Term"
             };
         }
