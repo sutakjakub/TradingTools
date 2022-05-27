@@ -1,5 +1,7 @@
 using Binance.Net;
+using Binance.Net.Clients;
 using Binance.Net.Interfaces;
+using Binance.Net.Interfaces.Clients;
 using Binance.Net.Objects;
 using CryptoExchange.Net.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -52,8 +54,7 @@ namespace TradingTools.Web
             {
                 var options = new BinanceClientOptions
                 {
-                    ApiCredentials = new ApiCredentials(Configuration["binance:key"], Configuration["binance:secret"]),
-                    AutoTimestamp = true
+                    ApiCredentials = new ApiCredentials(Configuration["binance:key"], Configuration["binance:secret"])
                 };
                 return new BinanceClient(options);
             });

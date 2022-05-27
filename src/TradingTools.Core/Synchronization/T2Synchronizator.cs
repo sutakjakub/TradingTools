@@ -90,9 +90,17 @@ namespace TradingTools.Core.Synchronization
 
                         if (tradeGroup == null)
                         {
+                            //tradeGroup = new T2TradeGroupEntity
+                            //{
+                            //    BaseAsset = symbolInfo.BaseAsset,
+                            //    Name = $"Default_{symbolInfo.BaseAsset}",
+                            //    IsDefault = true
+                            //};
                             tradeGroup = new T2TradeGroupEntity
                             {
-                                BaseAsset = symbolInfo.BaseAsset,
+                                SymbolInfoId = symbolInfo.Id,
+                                SymbolInfo = symbolInfo,
+
                                 Name = $"Default_{symbolInfo.BaseAsset}",
                                 IsDefault = true
                             };
@@ -118,6 +126,16 @@ namespace TradingTools.Core.Synchronization
             }
 
             return createdIds;
+        }
+
+        private static string CreateTradeGroupName(List<T2TradeGroupEntity> entities, string symbol)
+        {
+            var now = DateTime.Now;
+            var groups = entities
+                .Where(p => p.Created.Year == now.Year && p.Created.Month == now.Month)
+                .ToList();
+
+            return $"{now.Year % 100}.{now.Month:D2}/{groups.Count + 1 } {symbol}";
         }
 
         public async Task<IEnumerable<long>> SyncByBaseAsset(string baseAsset)

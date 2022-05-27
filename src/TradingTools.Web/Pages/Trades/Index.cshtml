@@ -21,7 +21,7 @@
         {
         <tr>
             <td>@trade.TradeTime <span class="small">@(Math.Round((@DateTime.Now - @trade.TradeTime).TotalDays))(days ago)</span></td>
-            <td><a asp-page="/TradeGroups/Detail" asp-route-id="@trade.T2TradeGroup.Id">@trade.T2TradeGroup.Name</a></td>
+            <td><a asp-page="/TradeGroups/Detail" asp-route-id="@trade.T2TradeGroup?.Id">@trade.T2TradeGroup?.Name</a></td>
             <td>@trade.Symbol</td>
             <td>@trade.Price @trade.T2SymbolInfo.QuoteAsset</td>
             <td>@trade.Quantity</td>

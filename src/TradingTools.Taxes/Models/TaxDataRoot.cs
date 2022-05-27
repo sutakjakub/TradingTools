@@ -24,6 +24,7 @@ namespace TradingTools.Taxes.Models
             {
                 SellItem = new TaxDataItem
                 {
+                    Id = sellElement.T2TradeEntityId,
                     Amount = sellElement.Amount,
                     AssetName = sellElement.AssetName,
                     AssetUsdValue = sellElement.QuoteAssetUsdValue,
@@ -42,6 +43,7 @@ namespace TradingTools.Taxes.Models
             {
                 root.BuyItems.Add(new TaxDataItem
                 {
+                    Id = item.T2TradeEntityId,
                     Amount = item.Amount,
                     AssetName = item.AssetName,
                     QuoteAssetName = item.QuoteAssetName,
@@ -63,6 +65,7 @@ namespace TradingTools.Taxes.Models
 
     public class TaxDataItem : TaxDataItemBase
     {
+        public long Id { get; set; }
         public decimal Price { get; set; }
         public string QuoteAssetName { get; set; }
         public DateTimeOffset When { get; set; }

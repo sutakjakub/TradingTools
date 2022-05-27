@@ -40,16 +40,21 @@ namespace TradingTools.Taxes
 
         public static IEnumerable<TaxReportItem> ConvertToItems(IList<TaxDataRoot> source)
         {
+            var numberPair = source
+                .SelectMany(s => s.BuyItems)
+                .Select(s => s.Id)
+                .GroupBy(x => x)
+                .ToDictionary(x => x.Key, y => y.Count());
+
             foreach (var root in source)
             {
-                if (root.AssetName == "BTC")
-                {
-                }
-                var commisionInUsd = root.SellItem.Commision.Amount * root.SellItem.Commision.AssetUsdValue;
-                commisionInUsd /= root.BuyItems.Count;
+                var sellCommisionInUsd = root.SellItem.Commision.Amount * root.SellItem.Commision.AssetUsdValue;
+                sellCommisionInUsd /= root.BuyItems.Count;
 
                 foreach (var buyItem in root.BuyItems)
                 {
+                    var buyCommision = buyItem.Commision.Amount * buyItem.Commision.AssetUsdValue;
+                    buyCommision /= numberPair[buyItem.Id];
                     yield return TaxReportItem.CreateBuyItem(
                        buyItem.Amount,
                        buyItem.AssetName,
@@ -57,7 +62,7 @@ namespace TradingTools.Taxes
                        root.WhenRealizeProfit.Date,
                        buyItem.Price * buyItem.AssetUsdValue,
                        root.SellItem.Price * root.SellItem.AssetUsdValue,
-                       commisionInUsd + (buyItem.Commision.Amount * buyItem.Commision.AssetUsdValue)
+                       sellCommisionInUsd + buyCommision
                        );
                 }
             }

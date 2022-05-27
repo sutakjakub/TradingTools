@@ -6,6 +6,17 @@
 <div>
     <div class="d-block">
         <span>You have @Model.TradeGroups.Count(c=>!c.TradeGroup.IsDefault && c.TradeGroup.TradeGroupState == Db.Enums.TradeGroupState.InProgress) active trades.</span>
+        <h4>Remaining positions in progress</h4>
+        
+        @foreach(var item in @Model.TradeGroups
+        .Where(c=>!c.TradeGroup.IsDefault && c.TradeGroup.TradeGroupState == Db.Enums.TradeGroupState.InProgress)
+        .GroupBy(g=>g.TradeGroup?.SymbolInfo?.QuoteAsset,j=>j, (g,j) => new {asset = g, count = j.Sum(s=>s.RemaingQuotePosition) }))
+        {
+            <div class="d-block">
+                <span>@item.count@item.asset</span>
+            </div>
+        }        
+        
     </div>
 
     <a asp-page="./create" class="btn btn-primary">Create New Group</a>

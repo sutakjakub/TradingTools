@@ -1,6 +1,6 @@
 ﻿using Binance.Net.Enums;
 using Binance.Net.Interfaces;
-using Binance.Net.Objects.Spot.SpotData;
+using Binance.Net.Clients;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using TradingTools.ExchangeServices.Interfaces;
 using TradingTools.Shared.Dto;
 using TradingTools.Shared.Enums;
+using Binance.Net.Interfaces.Clients;
+using Binance.Net.Objects.Models.Spot;
 
 namespace TradingTools.ExchangeServices
 {
@@ -23,7 +25,7 @@ namespace TradingTools.ExchangeServices
 
         public async Task<IEnumerable<T2SymbolInfoDto>> GetAllSymbolsAsync()
         {
-            var result = await _client.Spot.System.GetExchangeInfoAsync();
+            var result = await _client.SpotApi.ExchangeData.GetExchangeInfoAsync();
             var symbols = result.Data?.Symbols;
             if (symbols == null)
             {
@@ -37,11 +39,11 @@ namespace TradingTools.ExchangeServices
                     new T2SymbolInfoDto
                     {
                         BaseAsset = symbol.BaseAsset,
-                        BaseAssetCommissionPrecision = symbol.BaseCommissionPrecision,
+                        BaseAssetCommissionPrecision = symbol.BaseFeePrecision,
                         BaseAssetPrecision = symbol.BaseAssetPrecision,
                         ExchangeType = T2ExchangeType.Binance,
                         QuoteAsset = symbol.QuoteAsset,
-                        QuoteAssetCommissionPrecision = symbol.QuoteCommissionPrecision,
+                        QuoteAssetCommissionPrecision = symbol.QuoteFeePrecision,
                         QuoteAssetPrecision = symbol.QuoteAssetPrecision,
                         Symbol = symbol.Name
                     });
@@ -52,7 +54,7 @@ namespace TradingTools.ExchangeServices
 
         public async Task<T2OrderDto> GetOrderAsync(string symbol, long orderId)
         {
-            var result = await _client.Spot.Order.GetOrderAsync(symbol, orderId);
+            var result = await _client.SpotApi.Trading.GetOrderAsync(symbol, orderId);
             var order = result?.Data;
 
             if (order == null)
@@ -71,7 +73,7 @@ namespace TradingTools.ExchangeServices
                 ClientOrderId = order.ClientOrderId,
                 CreateTime = order.CreateTime,
                 IsWorking = order.IsWorking,
-                OrderId = order.OrderId,
+                OrderId = order.Id,
                 OrderListId = order.OrderListId,
                 OriginalClientOrderId = order.OriginalClientOrderId,
                 Price = order.Price,
@@ -92,7 +94,7 @@ namespace TradingTools.ExchangeServices
 
         public async Task<IEnumerable<T2OrderDto>> GetOpenOrders(string symbol = null)
         {
-            var openOrders = await _client.Spot.Order.GetOpenOrdersAsync(symbol);
+            var openOrders = await _client.SpotApi.Trading.GetOpenOrdersAsync(symbol);
 
             var result = new List<T2OrderDto>();
             foreach (var item in openOrders?.Data)
@@ -116,22 +118,17 @@ namespace TradingTools.ExchangeServices
         //    return result;
         //}
 
-        private static T2OrderType ConvertTo(OrderType type)
+        private static T2OrderType ConvertTo(SpotOrderType type)
         {
             return type switch
             {
-                OrderType.Limit => T2OrderType.Limit,
-                OrderType.LimitMaker => T2OrderType.LimitMaker,
-                OrderType.Liquidation => T2OrderType.Liquidation,
-                OrderType.Market => T2OrderType.Market,
-                OrderType.Stop => T2OrderType.Stop,
-                OrderType.StopLoss => T2OrderType.StopLoss,
-                OrderType.StopLossLimit => T2OrderType.StopLossLimit,
-                OrderType.StopMarket => T2OrderType.StopMarket,
-                OrderType.TakeProfit => T2OrderType.TakeProfit,
-                OrderType.TakeProfitLimit => T2OrderType.TakeProfitLimit,
-                OrderType.TakeProfitMarket => T2OrderType.TakeProfitMarket,
-                OrderType.TrailingStopMarket => T2OrderType.TrailingStopMarket,
+                SpotOrderType.Limit => T2OrderType.Limit,
+                SpotOrderType.LimitMaker => T2OrderType.LimitMaker,
+                SpotOrderType.Market => T2OrderType.Market,
+                SpotOrderType.StopLoss => T2OrderType.StopLoss,
+                SpotOrderType.StopLossLimit => T2OrderType.StopLossLimit,
+                SpotOrderType.TakeProfit => T2OrderType.TakeProfit,
+                SpotOrderType.TakeProfitLimit => T2OrderType.TakeProfitLimit,
                 _ => throw new InvalidOperationException($"Unknown type {type}"),
             };
         }
@@ -141,7 +138,7 @@ namespace TradingTools.ExchangeServices
             return timeInForce switch
             {
                 TimeInForce.FillOrKill => T2TimeInForce.FillOrKill,
-                TimeInForce.GoodTillCancel => T2TimeInForce.GoodTillCancel,
+                TimeInForce.GoodTillCanceled => T2TimeInForce.GoodTillCancel,
                 TimeInForce.GoodTillCrossing => T2TimeInForce.GoodTillCrossing,
                 TimeInForce.GoodTillExpiredOrCanceled => T2TimeInForce.GoodTillExpiredOrCanceled,
                 TimeInForce.ImmediateOrCancel => T2TimeInForce.ImmediateOrCancel,
@@ -178,7 +175,7 @@ namespace TradingTools.ExchangeServices
 
         public async Task<IEnumerable<T2TradeDto>> GetTradesAsync(string symbol, long? fromId = null)
         {
-            var result = await _client.Spot.Order.GetUserTradesAsync(symbol, null, new DateTime(2020, 1, 1), null, null, fromId);
+            var result = await _client.SpotApi.Trading.GetUserTradesAsync(symbol, null, new DateTime(2020, 1, 1), null, null, fromId);
             var trades = result?.Data.ToList();
 
             if (trades == null)
@@ -201,15 +198,15 @@ namespace TradingTools.ExchangeServices
                 list.Add(
                     new T2TradeDto
                     {
-                        Commission = trade.Commission,
-                        CommissionAsset = trade.CommissionAsset,
+                        Commission = trade.Fee,
+                        CommissionAsset = trade.FeeAsset,
                         ExchangeType = T2ExchangeType.Binance,
                         OrderId = trade.OrderId,
                         Price = trade.Price,
                         Quantity = trade.Quantity,
                         QuoteQuantity = trade.QuoteQuantity,
                         Symbol = trade.Symbol,
-                        TradeTime = trade.TradeTime,
+                        TradeTime = trade.Timestamp,
                         TradeId = trade.Id,
                         IsBestMatch = trade.IsBestMatch,
                         IsBuyer = trade.IsBuyer,
@@ -222,13 +219,13 @@ namespace TradingTools.ExchangeServices
 
         public async Task<decimal> GetPriceAsync(string symbol)
         {
-            var result = await _client.Spot.Market.GetPriceAsync(symbol);
+            var result = await _client.SpotApi.ExchangeData.GetPriceAsync(symbol);
             return result.Data.Price;
         }
 
         public async Task<IEnumerable<ExchangePriceDto>> GetPricesAsync()
         {
-            var result = await _client.Spot.Market.GetPricesAsync();
+            var result = await _client.SpotApi.ExchangeData.GetPricesAsync();
             var list = result.Data.ToList();
 
             return list.Select(s => new ExchangePriceDto { Price = s.Price, Symbol = s.Symbol, Timestamp = s.Timestamp });
@@ -236,10 +233,10 @@ namespace TradingTools.ExchangeServices
 
         public async Task<IEnumerable<BinanceUserCoinDto>> GetUserCoinsAsync()
         {
-            var result = await _client.General.GetUserCoinsAsync();
+            var result = await _client.SpotApi.Account.GetUserAssetsAsync();
             var list = result.Data.ToList();
 
-            return list.Select(s => new BinanceUserCoinDto { Coin = s.Coin, Free = s.Free, Locked = s.Locked, Name = s.Name });
+            return list.Select(s => new BinanceUserCoinDto { Coin = s.Asset, Free = s.Available, Locked = s.Locked, Name = s.Name });
         }
     }
 }
